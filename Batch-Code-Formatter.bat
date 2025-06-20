@@ -99,51 +99,60 @@ set "PHP_CS_FIXER_URL=https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/down
 :: ===========================================
 :main_menu
 cls
-color 0A
-echo === CODE FORMATTER + LIZENZ TOOL ===
-echo              by jmfrohs
+color 0B
 echo.
-echo === FORMATIERUNG ===
-echo [1] Einzelne Datei formatieren + lizenzieren
-echo [2] Verzeichnis formatieren + lizenzieren
-echo [3] Nur formatieren (ohne Lizenz)
+echo ===========================
+echo   Batch-Code-Formatter
+echo         by jmfrohs
+echo ===========================
 echo.
-echo === LIZENZIERUNG ===
-echo [4] Lizenz zu einzelner Datei hinzufügen
-echo [5] Aktueller Verzeichnis lizenzieren
-echo [6] Lizenz von Datei entfernen
-echo [7] Mehrere Dateien lizenzieren
-echo [8] Erweiterte Datei-Auswahl
-echo [9] Gesamtes Verzeichnis (rekursiv)
-echo [10] Komplette Projekt-Aufbereitung
+
+echo --- FORMATTING ---
+echo   1  Format and license single file
+echo   2  Format and license directory
+echo   3  Format only (no license)
 echo.
-echo === TOOL-INSTALLATION ===
-echo [11] JavaScript/TypeScript Tools
-echo [12] Python Tools
-echo [13] Java Tools
-echo [14] C/C++ Tools
-echo [15] PHP Tools
-echo [16] Rust Tools
-echo [17] Go Tools
-echo [18] Alle Tools installieren
-echo [19] Tool-Status anzeigen
+
+echo --- LICENSING ---
+echo   4  Add license to file
+echo   5  License current directory
+echo   6  Remove license from file
+echo   7  License multiple files
+echo   8  Advanced file selection
+echo   9  License entire directory (recursive)
+echo  10  Complete project setup
 echo.
-echo === KONFIGURATION ===
-echo [20] Lizenz-Templates verwalten
-echo [21] Lizenz-Einstellungen
-echo [22] Verfügbare Lizenzen anzeigen
-echo [23] Cache leeren
-echo [24] Konfiguration zurücksetzen
+
+echo --- TOOL INSTALLATION ---
+echo  11  JavaScript/TypeScript Tools
+echo  12  Python Tools
+echo  13  Java Tools
+echo  14  C/C++ Tools
+echo  15  PHP Tools
+echo  16  Rust Tools
+echo  17  Go Tools
+echo  18  Install all tools
+echo  19  Show tool status
 echo.
-echo === TXT-DATEI FORMATIERUNG ===
-echo [25] TXT-Datei mit Sprach-Erkennung formatieren
-echo [26] Mehrere TXT-Dateien batch-formatieren
-echo [27] TXT-Datei analysieren (nur Erkennung)
-echo [28] Batch-Datei formatieren
+
+echo --- CONFIGURATION ---
+echo  20  Manage license templates
+echo  21  License settings
+echo  22  Show available licenses
+echo  23  Clear cache
+echo  24  Reset configuration
 echo.
-echo [0] Beenden
+
+echo --- TXT AND BATCH FILES ---
+echo  25  Format TXT file with language detection
+echo  26  Batch format multiple TXT files
+echo  27  Analyze TXT file (detection only)
+echo  28  Format batch file (experimental)
 echo.
-set /p choice=Wählen Sie eine Option:
+
+echo   0  Exit
+echo.
+set /p choice=Choose an option (0-28):
 
 :: TXT-Optionen direkt behandeln
 if "%choice%"=="25" call :format_txt_file_menu
@@ -201,7 +210,7 @@ call :load_config
 exit /b 0
 
 :create_default_licenses
-echo Erstelle Standard-Lizenz-Templates...
+echo Create Default-License-Templates...
 (
 echo [MIT]
 echo /*
@@ -436,16 +445,16 @@ set "year=%~4"
 if "%BACKUP_BEFORE_LICENSE%"=="true" (
     copy "%file_path%" "%file_path%.bak" >nul 2>&1
     if errorlevel 1 (
-        echo WARNUNG: Backup konnte nicht erstellt werden!
+        echo Warning: Backup could not be created!
     ) else (
-        echo Backup erstellt: %file_path%.bak
+        echo Backup created: %file_path%.bak
     )
 )
 
 :: Prüfe ob bereits eine Lizenz vorhanden ist
 findstr /C:"Copyright" "%file_path%" >nul 2>&1
 if not errorlevel 1 (
-    echo WARNUNG: Datei enthält bereits Copyright-Hinweis!
+    echo Warning: File already contains copyright notice!
     set /p "overwrite=Trotzdem fortfahren? (j/n): "
     if not "!overwrite!"=="j" if not "!overwrite!"=="J" exit /b 0
 )
@@ -467,7 +476,7 @@ set "temp_file=%TEMP_DIR%\temp_licensed.tmp"
 :: Originaldatei ersetzen
 move "%temp_file%" "%file_path%" >nul 2>&1
 if errorlevel 1 (
-    echo FEHLER: Konnte Datei nicht aktualisieren!
+    echo ERROR: Could not update file!
     exit /b 1
 )
 
@@ -650,21 +659,21 @@ exit /b 0
 :: Entferne die alte get_license_template Funktion und ersetze sie durch diese neue Version
 :get_license_template
 :: Diese Funktion ist jetzt obsolet - verwende create_license_content stattdessen
-echo WARNUNG: get_license_template ist veraltet, verwende create_license_content
+echo ERROR: get_license_template is obsolete, use create_license_content
 exit /b 1
 
 :license_single_file
 echo.
 set /p "file_path=Pfad zur Datei eingeben: "
 if not exist "%file_path%" (
-    echo FEHLER: Datei nicht gefunden!
+    echo ERROR: File not found!
     pause
     exit /b 1
 )
 
 call :add_license_to_file "%file_path%" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
 echo.
-echo Lizenz erfolgreich zu Datei hinzugefuegt!
+echo License successfully added to file!
 pause
 exit /b 0
 
@@ -678,9 +687,9 @@ set "year=%~4"
 if "%BACKUP_BEFORE_LICENSE%"=="true" (
     copy "%file_path%" "%file_path%.bak" >nul 2>&1
     if errorlevel 1 (
-        echo WARNUNG: Backup konnte nicht erstellt werden!
+        echo Warning: Backup could not be created!
     ) else (
-        echo Backup erstellt: %file_path%.bak
+        echo Backup created: %file_path%.bak
     )
 )
 
@@ -698,7 +707,7 @@ if "%license_type%"=="Custom" (
 :: Prüfe ob bereits eine Lizenz vorhanden ist
 findstr /C:"Copyright" "%file_path%" >nul 2>&1
 if not errorlevel 1 (
-    echo WARNUNG: Datei enthält bereits Copyright-Hinweis!
+    echo WARNING: File already contains copyright notice!
     set /p "overwrite=Trotzdem fortfahren? (j/n): "
     if not "!overwrite!"=="j" if not "!overwrite!"=="J" exit /b 0
 )
@@ -716,7 +725,7 @@ set "temp_file=%TEMP_DIR%\temp_licensed.tmp"
 :: Originaldatei ersetzen
 move "%temp_file%" "%file_path%" >nul 2>&1
 if errorlevel 1 (
-    echo FEHLER: Konnte Datei nicht aktualisieren!
+    echo ERROR: Could not update file!
     exit /b 1
 )
 
@@ -749,19 +758,19 @@ exit /b 0
 
 :change_default_license
 cls
-echo === STANDARD-LIZENZ AENDERN ===
+echo === CHANGE STANDARD LICENSE ===
 echo.
-echo Verfuegbare Lizenzen:
+echo Available licenses:
 call :list_available_licenses
 echo.
-echo Aktuelle Standard-Lizenz: %DEFAULT_LICENSE%
+echo Current standard license: %DEFAULT_LICENSE%
 echo.
 set /p "new_license=Neue Standard-Lizenz waehlen: "
 
 :: Validiere Lizenz
 call :validate_license "%new_license%" valid
 if "%valid%"=="false" (
-    echo FEHLER: Unbekannte Lizenz!
+    echo ERROR: Unknown license!
     pause
     exit /b 1
 )
@@ -771,14 +780,14 @@ call :update_config "DEFAULT_LICENSE" "%new_license%"
 set "DEFAULT_LICENSE=%new_license%"
 
 echo.
-echo Standard-Lizenz erfolgreich auf "%new_license%" geaendert!
+echo Standard license successfully changed to “%new_license%”!
 pause
 exit /b 0
 
 :list_available_licenses
 setlocal enabledelayedexpansion
 echo.
-echo Verfügbare Lizenzen:
+echo Available licenses:
 for /f "usebackq delims=" %%a in ("%LICENSES_FILE%") do (
     set "line=%%a"
     setlocal enabledelayedexpansion
@@ -831,12 +840,12 @@ exit /b 0
 
 :license_current_directory
 echo.
-echo === AKTUELLES VERZEICHNIS LIZENZIEREN ===
+echo === LICENSE CURRENT DIRECTORY ===
 echo.
-echo Verzeichnis: %CD%
-echo Standard-Lizenz: %DEFAULT_LICENSE%
+echo Directory: %CD%
+echo Standard license: %DEFAULT_LICENSE%
 echo.
-echo Unterstuetzte Dateierweiterungen:
+echo Supported file extensions:
 echo %SUPPORTED_EXTENSIONS%
 echo.
 set /p "confirm=Fortfahren? (j/n): "
@@ -849,7 +858,7 @@ set "skipped=0"
 for %%f in (*.*) do (
     call :is_supported_extension "%%f" supported
     if "!supported!"=="true" (
-        echo Verarbeite: %%f
+        echo Process: %%f
         call :add_license_to_file "%%f" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
         set /a processed+=1
     ) else (
@@ -858,28 +867,28 @@ for %%f in (*.*) do (
 )
 
 echo.
-echo === ZUSAMMENFASSUNG ===
-echo Verarbeitete Dateien: %processed%
-echo Uebersprungene Dateien: %skipped%
+echo === SUMMARY ===
+echo Processed files: %processed%
+echo Skipped files: %skipped%
 pause
 exit /b 0
 
 :license_entire_directory
 cls
-echo === GESAMTES VERZEICHNIS (REKURSIV) LIZENZIEREN ===
+echo === LICENSE THE ENTIRE DIRECTORY (RECURSIVELY) ===
 echo.
 set /p "target_dir=Verzeichnis (leer = aktuell): "
 if "%target_dir%"=="" set "target_dir=%CD%"
 
 if not exist "%target_dir%" (
-    echo FEHLER: Verzeichnis nicht gefunden!
+    echo ERROR: Directory not found!
     pause
     exit /b 1
 )
 
 echo.
-echo Lizenzierung aller unterstützten Dateien im Verzeichnis: %target_dir%
-echo Standard-Lizenz: %DEFAULT_LICENSE%
+echo Licensing of all supported files in the directory: %target_dir%
+echo Standard license: %DEFAULT_LICENSE%
 echo.
 set /p "confirm=Fortfahren? (j/n): "
 if not "%confirm%"=="j" if not "%confirm%"=="J" exit /b 0
@@ -890,7 +899,7 @@ set "skipped=0"
 for /r "%target_dir%" %%f in (*.*) do (
     call :is_supported_extension "%%f" supported
     if "!supported!"=="true" (
-        echo Lizenzieren: %%f
+        echo Licensing: %%f
         call :add_license_to_file "%%f" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
         set /a processed+=1
     ) else (
@@ -899,9 +908,9 @@ for /r "%target_dir%" %%f in (*.*) do (
 )
 
 echo.
-echo === ZUSAMMENFASSUNG ===
-echo Lizenzierte Dateien: %processed%
-echo Übersprungene Dateien: %skipped%
+echo === SUMMARY ===
+echo Licensed files: %processed%
+echo Skipped files: %skipped%
 pause
 exit /b 0
 
@@ -919,11 +928,11 @@ exit /b 0
 
 :format_and_license
 cls
-echo === CODE FORMATIEREN + LIZENZ HINZUFUEGEN ===
+echo === FORMAT CODE + ADD LICENSE ===
 echo.
 set /p "file_path=Pfad zur Datei eingeben: "
 if not exist "%file_path%" (
-    echo FEHLER: Datei nicht gefunden!
+    echo ERROR: File not found!
     pause
     exit /b 1
 )
@@ -931,19 +940,19 @@ if not exist "%file_path%" (
 :: Bestimme Dateityp und Formatter
 call :get_formatter_for_file "%file_path%" formatter
 if "%formatter%"=="" (
-    echo WARNUNG: Kein Formatter für diese Datei verfügbar!
+    echo WARNING: No formatter available for this file!
     set /p "continue_anyway=Nur Lizenz hinzufügen? (j/n): "
     if not "%continue_anyway%"=="j" if not "%continue_anyway%"=="J" exit /b 0
 ) else (
-    echo Formatiere Datei mit: %formatter%
+    echo Format file with: %formatter%
     call :format_file "%file_path%" "%formatter%"
 )
 
-echo Füge Lizenz hinzu...
+echo Add license...
 call :add_license_to_file "%file_path%" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
 
 echo.
-echo Datei erfolgreich formatiert und lizenziert!
+echo File successfully formatted and licensed!
 pause
 exit /b 0
 
@@ -1022,7 +1031,7 @@ if "%formatter%"=="prettier" (
     if not errorlevel 1 (
         prettier --write "%file_path%"
     ) else (
-        echo WARNUNG: Prettier nicht installiert!
+        echo WARNING: Prettier not installed!
         exit /b 1
     )
 )
@@ -1032,7 +1041,7 @@ if "%formatter%"=="black" (
     if not errorlevel 1 (
         black "%file_path%"
     ) else (
-        echo WARNUNG: Black nicht installiert!
+        echo WARNING: Black not installed!
         exit /b 1
     )
 )
@@ -1041,7 +1050,7 @@ if "%formatter%"=="google-java-format" (
     if exist "%TOOLS_DIR%\%GOOGLE_JAVA_FORMAT_JAR%" (
         java -jar "%TOOLS_DIR%\%GOOGLE_JAVA_FORMAT_JAR%" --replace "%file_path%"
     ) else (
-        echo WARNUNG: Google Java Format nicht installiert!
+        echo WARNING: Google Java Format not installed!
     )
 )
 
@@ -1050,7 +1059,7 @@ if "%formatter%"=="clang-format" (
     if not errorlevel 1 (
         clang-format -i "%file_path%"
     ) else (
-        echo WARNUNG: clang-format nicht installiert!
+        echo WARNING: clang-format not installed!
     )
 )
 
@@ -1060,10 +1069,10 @@ if "%formatter%"=="php-cs-fixer" (
         if exist "%TOOLS_DIR%\php-cs-fixer.phar" (
             php "%TOOLS_DIR%\php-cs-fixer.phar" fix "%file_path%"
         ) else (
-            echo WARNUNG: PHP-CS-Fixer nicht installiert!
+            echo WARNING: PHP-CS-Fixer not installed!
         )
     ) else (
-        echo WARNUNG: PHP nicht installiert!
+        echo WARNING: PHP not installed!
     )
 )
 
@@ -1078,77 +1087,77 @@ echo === JAVASCRIPT/TYPESCRIPT TOOLS INSTALLIEREN ===
 echo.
 where npm >nul 2>&1
 if errorlevel 1 (
-    echo FEHLER: npm ist nicht installiert!
-    echo Bitte installieren Sie Node.js zuerst.
+    echo ERROR: npm is not installed!
+    echo Please install Node.js first.
     pause
     exit /b 1
 )
 
-echo [1/3] Installiere Prettier...
+echo [1/3] Install Prettier...
 call npm install -g prettier
-echo [2/3] Installiere ESLint...
+echo [2/3] Install ESLint...
 call npm install -g eslint
-echo [3/3] Installiere JS-Beautify...
+echo [3/3] Install JS-Beautify...
 call npm install -g js-beautify
 
 echo.
-echo JavaScript/TypeScript Tools erfolgreich installiert!
+echo JavaScript/TypeScript tools successfully installed!
 pause
 exit /b 0
 
 :install_python_tools
 echo.
-echo === PYTHON TOOLS INSTALLIEREN ===
+echo === INSTALL PYTHON TOOLS ===
 echo.
 where pip >nul 2>&1
 if errorlevel 1 (
-    echo FEHLER: pip ist nicht installiert!
+    echo ERROR: pip is not installed!
     pause
     exit /b 1
 )
 
-echo [1/4] Installiere Black...
+echo [1/4] Install Black...
 call pip install black
-echo [2/4] Installiere autopep8...
+echo [2/4] Install autopep8...
 call pip install autopep8
-echo [3/4] Installiere YAPF...
+echo [3/4] Install YAPF...
 call pip install yapf
-echo [4/4] Installiere isort...
+echo [4/4] Install isort...
 call pip install isort
 
 echo.
-echo Python Tools erfolgreich installiert!
+echo Python Tools successfully installed!
 pause
 exit /b 0
 
 :install_java_tools
 echo.
-echo === JAVA TOOLS INSTALLIEREN ===
+echo === INSTALL JAVA TOOLS ===
 echo.
 where java >nul 2>&1
 if errorlevel 1 (
-    echo FEHLER: Java ist nicht installiert!
-    echo Bitte installieren Sie Java JDK zuerst.
+    echo ERROR: Java is not installed!
+    echo Please install Java JDK first.
     pause
     exit /b 1
 )
 
-echo [1/2] Lade Google Java Format herunter...
+echo [1/2] Download Google Java Format...
 powershell -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%GOOGLE_JAVA_FORMAT_URL%' -OutFile '%TOOLS_DIR%\%GOOGLE_JAVA_FORMAT_JAR%'}"
 if errorlevel 1 (
-    echo FEHLER: Download fehlgeschlagen!
+    echo ERROR: Download failed!
     pause
     exit /b 1
 )
 
-echo [2/2] Erstelle Wrapper-Script...
+echo [2/2] Create wrapper script...
 (
 echo @echo off
 echo java -jar "%TOOLS_DIR%\%GOOGLE_JAVA_FORMAT_JAR%" %%*
 ) > "%TOOLS_DIR%\google-java-format.bat"
 
 echo.
-echo Java Tools erfolgreich installiert!
+echo Java Tools successfully installed!
 echo - Google Java Format: %GOOGLE_JAVA_FORMAT_JAR%
 echo - Wrapper-Script: google-java-format.bat
 pause
@@ -1156,63 +1165,63 @@ exit /b 0
 
 :install_cpp_tools
 echo.
-echo === C/C++ TOOLS INSTALLIEREN ===
+echo === INSTALL C/C++ TOOLS ===
 echo.
 
-echo [1/2] Lade AStyle herunter...
+echo [1/2] Download AStyle...
 powershell -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%ASTYLE_URL%' -OutFile '%TEMP_DIR%\astyle.zip'}"
 if errorlevel 1 (
-    echo FEHLER: AStyle Download fehlgeschlagen!
+    echo ERROR: AStyle download failed!
     pause
     exit /b 1
 )
 
-echo Extrahiere AStyle...
+echo Extract AStyle...
 powershell -Command "Expand-Archive -Path '%TEMP_DIR%\astyle.zip' -DestinationPath '%TOOLS_DIR%\astyle' -Force"
 
-echo [2/2] Clang-Format Installation...
-echo HINWEIS: Clang-Format ist Teil des LLVM-Toolchains.
-echo Bitte installieren Sie LLVM manuell von: https://llvm.org/releases/
-echo Oder verwenden Sie chocolatey: choco install llvm
+echo [2/2] Clang format installation...
+echo NOTE: Clang-format is part of the LLVM toolchain.
+echo Please install LLVM manually from: https://llvm.org/releases/
+echo Or use chocolatey: choco install llvm
 echo.
-echo Alternativ können Sie auch Visual Studio Build Tools installieren,
-echo welche clang-format enthalten.
+echo Alternatively, you can install Visual Studio Build Tools,
+echo which contain clang-format.
 
 echo.
-echo C/C++ Tools (teilweise) installiert!
+echo C/C++ Tools (partially) installed!
 echo - AStyle: %TOOLS_DIR%\astyle\
-echo - Clang-Format: Manuelle Installation erforderlich
+echo - Clang format: Manual installation required
 pause
 exit /b 0
 
 :install_php_tools
 echo.
-echo === PHP TOOLS INSTALLIEREN ===
+echo === INSTALL PHP TOOLS ===
 echo.
 where php >nul 2>&1
 if errorlevel 1 (
-    echo FEHLER: PHP ist nicht installiert!
-    echo Bitte installieren Sie PHP zuerst.
+    echo ERROR: PHP is not installed!
+    echo Please install PHP first.
     pause
     exit /b 1
 )
 
-echo [1/1] Lade PHP-CS-Fixer herunter...
+echo [1/1] Download PHP-CS-Fixer...
 powershell -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%PHP_CS_FIXER_URL%' -OutFile '%TOOLS_DIR%\php-cs-fixer.phar'}"
 if errorlevel 1 (
-    echo FEHLER: Download fehlgeschlagen!
+    echo ERROR: Download failed!
     pause
     exit /b 1
 )
 
-echo Erstelle Wrapper-Script...
+echo Generate Wrapper-Script...
 (
 echo @echo off
 echo php "%TOOLS_DIR%\php-cs-fixer.phar" %%*
 ) > "%TOOLS_DIR%\php-cs-fixer.bat"
 
 echo.
-echo PHP Tools erfolgreich installiert!
+echo PHP Tools successfully installed!
 echo - PHP-CS-Fixer: php-cs-fixer.phar
 echo - Wrapper-Script: php-cs-fixer.bat
 pause
@@ -1220,99 +1229,99 @@ exit /b 0
 
 :install_rust_tools
 echo.
-echo === RUST TOOLS INSTALLIEREN ===
+echo === INSTALL RUST TOOLS ===
 echo.
 where rustc >nul 2>&1
 if errorlevel 1 (
-    echo WARNUNG: Rust ist nicht installiert!
+    echo WARNING: Rust is not installed!
     echo.
-    echo [1] Rust über rustup installieren
-    echo [2] Nur rustfmt installieren (wenn Rust bereits vorhanden)
-    echo [0] Abbrechen
+    echo [1] Install Rust via rustup
+    echo [2] Install rustfmt only (if Rust already exists)
+    echo [0] Cancel
     echo.
-    set /p "rust_choice=Waehlen Sie eine Option: "
+    set /p "rust_choice=Choose an Option: "
 
     if "!rust_choice!"=="1" (
-        echo Lade rustup herunter...
+        echo Download rustup...
         powershell -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%RUSTFMT_URL%' -OutFile '%TEMP_DIR%\rustup-init.exe'}"
         echo.
-        echo Starte rustup-init...
+        echo Starting rustup-init...
         "%TEMP_DIR%\rustup-init.exe"
         echo.
-        echo Bitte starten Sie das Script nach der Rust-Installation erneut.
+        echo Please restart the script after the Rust installation.
         pause
         exit /b 0
     ) else if "!rust_choice!"=="2" (
-        echo Versuche rustfmt zu installieren...
+        echo Try to install rustfmt...
     ) else (
         exit /b 0
     )
 )
 
-echo [1/1] Installiere/Aktualisiere rustfmt...
+echo [1/1] Install/update rustfmt...
 where rustup >nul 2>&1
 if not errorlevel 1 (
     call rustup component add rustfmt
 ) else (
-    echo WARNUNG: rustup nicht gefunden, rustfmt könnte bereits verfügbar sein.
+    echo WARNING: rustup not found, rustfmt may already be available.
 )
 
 echo.
-echo Rust Tools Installation abgeschlossen!
-echo - rustfmt sollte jetzt verfügbar sein
+echo Rust Tools installation completed!
+echo - rustfmt should now be available
 pause
 exit /b 0
 
 :install_go_tools
 echo.
-echo === GO TOOLS INSTALLIEREN ===
+echo === INSTALL GO TOOLS ===
 echo.
 where go >nul 2>&1
 if errorlevel 1 (
-    echo WARNUNG: Go ist nicht installiert!
+    echo WARNING: Go is not installed!
     echo.
-    echo Möchten Sie Go herunterladen und installieren?
-    set /p "go_install=Download starten? (j/n): "
+    echo Do you want to download and install Go?
+    set /p "go_install=Start download? (y/n): "
 
     if "!go_install!"=="j" if "!go_install!"=="J" (
-        echo Lade Go herunter...
+        echo Download Go...
         powershell -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%GOFMT_URL%' -OutFile '%TEMP_DIR%\go.zip'}"
         echo.
-        echo Go wurde heruntergeladen nach: %TEMP_DIR%\go.zip
-        echo Bitte installieren Sie Go manuell und starten Sie das Script erneut.
+        echo Go was downloaded to: %TEMP_DIR%\go.zip
+        echo Please install Go manually and restart the script.
         pause
         exit /b 0
     ) else (
-        echo Installation abgebrochen.
+        echo Installation canceled.
         pause
         exit /b 0
     )
 )
 
-echo [1/1] Überprüfe gofmt...
+echo [1/1] Check gofmt...
 where gofmt >nul 2>&1
 if errorlevel 1 (
-    echo FEHLER: gofmt nicht gefunden!
-    echo gofmt sollte automatisch mit Go installiert werden.
+    echo ERROR: gofmt not found!
+    echo gofmt should be installed automatically with Go.
 ) else (
-    echo gofmt ist bereits verfügbar!
+    echo gofmt is already available!
 )
 
 echo.
-echo Go Tools Status überprüft!
-echo - gofmt: Verfügbar (Teil der Go-Installation)
+echo Go Tools status checked!
+echo - gofmt: Available (part of the Go installation)
 pause
 exit /b 0
 
 :install_all_tools
 echo.
-echo === ALLE FORMATTER INSTALLIEREN ===
+echo === INSTALL ALL FORMATTER ===
 echo.
-echo Dies wird alle verfügbaren Formatter installieren.
-echo Dies kann einige Zeit dauern...
+echo This will install all available formatters.
+echo This may take some time...
 echo.
-set /p "confirm_all=Fortfahren? (j/n): "
-if not "%confirm_all%"=="j" if not "%confirm_all%"=="J" exit /b 0
+set /p "confirm_all=Continue? (y/n): "
+if not "%confirm_all%"=="y" if not "%confirm_all%"=="Y" exit /b 0
 
 echo.
 echo ========================================
@@ -1332,14 +1341,14 @@ call :install_go_tools
 echo ========================================
 
 echo.
-echo === INSTALLATION ABGESCHLOSSEN ===
-echo Alle verfügbaren Tools wurden installiert!
+echo === INSTALLATION COMPLETED ===
+echo All available tools have been installed!
 pause
 exit /b 0
 
 :show_all_tool_status
 cls
-echo === STATUS ALLER TOOLS ===
+echo === STATUS OF ALL TOOLS ===
 echo.
 
 echo JavaScript/TypeScript:
@@ -1377,8 +1386,8 @@ where gofmt >nul 2>&1 && echo [OK] gofmt || echo [--] gofmt
 
 echo.
 echo Lizenz-System:
-if exist "%LICENSES_FILE%" (echo [OK] Lizenz-Templates) else (echo [--] Lizenz-Templates)
-if exist "%CONFIG_FILE%" (echo [OK] Konfiguration) else (echo [--] Konfiguration)
+if exist "%LICENSES_FILE%" (echo [OK] License-Templates) else (echo [--] License-Templates)
+if exist "%CONFIG_FILE%" (echo [OK] Configuration) else (echo [--] Configuration)
 
 echo.
 pause
@@ -1386,19 +1395,19 @@ exit /b 0
 
 :clear_cache
 echo.
-echo === CACHE LEEREN ===
+echo === CLEAR CACHE ===
 echo.
 if exist "%TEMP_DIR%" (
-    echo Lösche temporäre Dateien...
+    echo Delete temporary files...
     rd /s /q "%TEMP_DIR%" >nul 2>&1
     mkdir "%TEMP_DIR%"
-    echo Temporäre Dateien gelöscht!
+    echo Temporary files deleted!
 ) else (
-    echo Kein Cache vorhanden.
+    echo No cache available.
 )
 
 echo.
-echo Cache erfolgreich geleert!
+echo Cache successfully cleared!
 pause
 exit /b 0
 
@@ -1411,7 +1420,7 @@ set "file_path=%~1"
 set "result_var=%~2"
 set "detected_language="
 
-echo Analysiere Dateiinhalt von: %file_path%
+echo Analyze file content from: %file_path%
 echo.
 
 :: Prüfe die ersten 50 Zeilen der Datei auf Programmiersprachen-Indikatoren
@@ -1470,9 +1479,9 @@ exit /b 0
 
 :advanced_file_selection
 cls
-echo === ERWEITERTE DATEI-AUSWAHL ===
+echo === ADVANCED FILE SELECTION ===
 echo.
-echo Geben Sie die Dateinamen (mit Komma getrennt) ein, z.B.:
+echo Enter the file names (separated by commas), e.g:
 echo   file1.java,file2.py,file3.cpp
 echo.
 set /p "file_list=Dateien: "
@@ -1480,26 +1489,26 @@ set /p "file_list=Dateien: "
 :: Trenne die Dateinamen und verarbeite sie einzeln
 for %%f in (%file_list%) do (
     if exist "%%f" (
-        echo Verarbeite: %%f
+        echo Process: %%f
         call :add_license_to_file "%%f" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
-        echo Lizenz hinzugefügt zu %%f
+        echo License added to %%f
     ) else (
-        echo Datei nicht gefunden: %%f
+        echo File not found: %%f
     )
 )
 
 echo.
-echo Erweiterte Datei-Auswahl abgeschlossen!
+echo Advanced file selection completed!
 pause
 exit /b 0
 
 :format_only
 cls
-echo === NUR FORMATIEREN (OHNE LIZENZ) ===
+echo === FORMAT ONLY (WITHOUT LICENSE) ===
 echo.
-set /p "file_path=Pfad zur Datei eingeben: "
+set /p "file_path=Enter the path to the file: "
 if not exist "%file_path%" (
-    echo FEHLER: Datei nicht gefunden!
+    echo ERROR: File not found!
     pause
     exit /b 1
 )
@@ -1507,36 +1516,36 @@ if not exist "%file_path%" (
 :: Bestimme Dateityp und Formatter
 call :get_formatter_for_file "%file_path%" formatter
 if "%formatter%"=="" (
-    echo WARNUNG: Kein Formatter für diese Datei verfügbar!
+    echo WARNING: No formatter available for this file!
     pause
     exit /b 0
 ) else (
-    echo Formatiere Datei mit: %formatter%
+    echo Format file with: %formatter%
     call :format_file "%file_path%" "%formatter%"
 )
 
 echo.
-echo Datei erfolgreich formatiert!
+echo File formatted successfully!
 pause
 exit /b 0
 
 :analyze_txt_file
 cls
-echo === TXT-DATEI ANALYSIEREN (NUR ERKENNUNG) ===
+echo === ANALYZE TXT FILE (RECOGNITION ONLY) ===
 echo.
-set /p "txt_file_path=Pfad zur TXT-Datei eingeben: "
+set /p "txt_file_path=Enter the path to the TXT file: "
 
 if not exist "%txt_file_path%" (
-    echo FEHLER: Datei nicht gefunden!
+    echo ERROR: File not found!
     pause
     exit /b 1
 )
 
 :: Prüfe ob es wirklich eine TXT-Datei ist
 if /i not "%txt_file_path:~-4%"==".txt" (
-    echo WARNUNG: Datei hat keine .txt Erweiterung!
-    set /p "continue_anyway=Trotzdem fortfahren? (j/n): "
-    if /i not "!continue_anyway!"=="j" exit /b 0
+    echo WARNING: File has no .txt extension!
+    set /p "continue_anyway=Continue? (y/n): "
+    if /i not "!continue_anyway!"=="y" if /i not "!continue_anyway!"=="Y" exit /b 0
 )
 
 :: Sprache erkennen
@@ -1544,34 +1553,34 @@ call :detect_language_in_txt "%txt_file_path%" detected_lang
 
 echo.
 if "%detected_lang%"=="" (
-    echo Keine Programmiersprache erkannt.
+    echo No programming language recognized.
 ) else (
-    echo Erkannte Sprache: %detected_lang%
+    echo Recognized language: %detected_lang%
 )
 pause
 exit /b 0
 
 :batch_format_txt_files
 cls
-echo === MEHRERE TXT-DATEIEN BATCH-FORMATIEREN ===
+echo === BATCH FORMAT MULTIPLE TXT FILES ===
 echo.
-echo Geben Sie die Dateinamen (mit Komma getrennt) ein, z.B.:
+echo Enter the file names (separated by commas), e.g:
 echo   file1.txt,file2.txt,file3.txt
 echo.
-set /p "file_list=Dateien: "
+set /p "file_list=Files: "
 
 for %%f in (%file_list%) do (
     if exist "%%f" (
         echo.
-        echo Verarbeite: %%f
+        echo Process: %%f
         call :format_txt_file_menu_batch "%%f"
     ) else (
-        echo Datei nicht gefunden: %%f
+        echo File not found: %%f
     )
 )
 
 echo.
-echo Batch-Formatierung abgeschlossen!
+echo Batch formatting completed!
 pause
 exit /b 0
 
@@ -1579,9 +1588,9 @@ exit /b 0
 cls
 echo === FORMAT BATCH FILE (EXPERIMENTAL) ===
 echo.
-set /p "file_path=Pfad zur .bat oder .cmd Datei: "
+set /p "file_path=Path to the .bat or .cmd file: "
 if not exist "%file_path%" (
-    echo FEHLER: Datei nicht gefunden!
+    echo ERROR: File not found!
     pause
     exit /b 1
 )
@@ -1592,19 +1601,19 @@ powershell -Command "(Get-Content -Raw '%file_path%') -replace '\r\n', \"`n\" | 
 
 move /y "%temp_file%" "%file_path%" >nul 2>&1
 if errorlevel 1 (
-    echo FEHLER: Datei konnte nicht aktualisiert werden!
+    echo ERROR: File could not be updated!
     pause
     exit /b 1
 )
 
-echo Batch-Datei formatiert (Leerzeichen entfernt, Zeilenenden vereinheitlicht).
+echo Batch file formatted (spaces removed, line endings standardized).
 
 :: Lizenz hinzufügen anbieten
 echo.
-set /p "add_license=Lizenz zu dieser Datei hinzufügen? (j/n): "
-if /i "%add_license%"=="j" (
+Batch file formatted (spaces removed, line endings unified).set /p "add_license=Add license to this file? (y/n): "
+if /i "%add_license%"=="y" (
     call :add_license_to_file "%file_path%" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
-    echo Lizenz erfolgreich hinzugefügt!
+    echo License successfully added!
 )
 
 pause
@@ -1615,13 +1624,13 @@ set "txt_file_path=%~1"
 
 :: Prüfe ob es wirklich eine TXT-Datei ist
 if /i not "%txt_file_path:~-4%"==".txt" (
-    echo WARNUNG: %%f hat keine .txt Erweiterung! Überspringe.
+    echo WARNING: %%f does not have a .txt extension! Skip.
     exit /b 0
 )
 
 :: Programmiersprache abfragen
 echo.
-echo Bitte Programmiersprache für %%f auswählen:
+echo Please select programming language for %%f:
 echo [1] JavaScript/TypeScript
 echo [2] Python
 echo [3] Java
@@ -1632,9 +1641,9 @@ echo [7] Go
 echo [8] SQL
 echo [9] HTML
 echo [10] CSS
-echo [11] Plaintext (keine Formatierung)
+echo [11] Plaintext (No formatting)
 echo.
-set /p "manual_choice=Sprache wählen: "
+set /p "manual_choice=Select language: "
 
 set "detected_lang="
 if "%manual_choice%"=="1" set "detected_lang=javascript"
@@ -1650,7 +1659,7 @@ if "%manual_choice%"=="10" set "detected_lang=css"
 if "%manual_choice%"=="11" set "detected_lang=plaintext"
 
 if "%detected_lang%"=="plaintext" (
-    echo Datei wird als Plaintext behandelt - keine Formatierung möglich.
+    echo File is treated as plain text - no formatting possible.
     exit /b 0
 )
 
@@ -1658,7 +1667,7 @@ if "%detected_lang%"=="plaintext" (
 call :get_formatter_for_language "%detected_lang%" formatter_tool
 
 if "%formatter_tool%"=="" (
-    echo FEHLER: Kein Formatter für %detected_lang% verfügbar!
+    echo ERROR: No formatter available for %detected_lang%!
     exit /b 1
 )
 
@@ -1666,18 +1675,18 @@ if "%formatter_tool%"=="" (
 call :get_temp_extension "%detected_lang%" temp_ext
 set "temp_file=%TEMP_DIR%\temp_format%temp_ext%"
 
-echo Erstelle temporäre Datei: %temp_file%
+echo Create temporary file: %temp_file%
 copy "%txt_file_path%" "%temp_file%" >nul 2>&1
 
-echo Formatiere als %detected_lang% mit %formatter_tool%...
+echo Format as%detected_lang% with %formatter_tool%...
 call :format_file "%temp_file%" "%formatter_tool%"
 
 if not errorlevel 1 (
-    echo Kopiere formatierte Datei zurück...
+    echo Copy formatted file back...
     copy "%temp_file%" "%txt_file_path%" >nul 2>&1
-    echo Formatierung erfolgreich!
+    echo Formatting successful!
 ) else (
-    echo FEHLER: Formatierung fehlgeschlagen!
+    echo ERROR: Formatting failed!
 )
 
 :: Aufräumen
@@ -1685,10 +1694,10 @@ if exist "%temp_file%" del "%temp_file%" >nul 2>&1
 
 :: Nach Lizenz fragen
 echo.
-set /p "add_license=Lizenz zu dieser Datei hinzufügen? (j/n): "
-if /i "%add_license%"=="j" (
+set /p "add_license=Add license to this file? (y/n): "
+if /i "%add_license%"=="y" (
     call :add_license_to_file "%txt_file_path%" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
-    echo Lizenz erfolgreich hinzugefügt!
+    echo License successfully added!
 )
 
 exit /b 0
@@ -1697,7 +1706,7 @@ exit /b 0
 set "file_path=%~1"
 
 echo.
-echo === TXT-DATEI FORMATIERUNG ===
+echo === TXT FILE FORMATTING ===
 echo Datei: %file_path%
 echo.
 
@@ -1705,21 +1714,21 @@ echo.
 call :detect_language_in_txt "%file_path%" detected_lang
 
 if "%detected_lang%"=="" (
-    echo Keine Programmiersprache erkannt.
+    echo No programming language recognized.
     echo.
-    echo [1] Manuell Sprache auswählen
-    echo [2] Als Plaintext behandeln
-    echo [3] Datei überspringen
-    echo [0] Abbrechen
+    echo [1] Manually select language
+    echo [2] Treat as plain text
+    echo [3] Skip file
+    echo [0] Cancel
     echo.
-    set /p "txt_choice=Wählen Sie eine Option: "
+    set /p "txt_choice=Choose an Option: "
 
     if "!txt_choice!"=="1" call :manual_language_selection detected_lang
     if "!txt_choice!"=="2" set "detected_lang=plaintext"
     if "!txt_choice!"=="3" exit /b 0
     if "!txt_choice!"=="0" exit /b 1
 ) else (
-    echo Erkannte Sprache: %detected_lang%
+    echo Recognized language: %detected_lang%
     echo.
     set /p "confirm_lang=Korrekt? (j/n): "
     if "!confirm_lang!"=="n" if "!confirm_lang!"=="N" (
@@ -1728,7 +1737,7 @@ if "%detected_lang%"=="" (
 )
 
 if "%detected_lang%"=="plaintext" (
-    echo Datei wird als Plaintext behandelt - keine Formatierung möglich.
+    echo File is treated as plain text - no formatting possible.
     exit /b 0
 )
 
@@ -1737,7 +1746,7 @@ if "%detected_lang%"=="plaintext" (
 call :get_formatter_for_language "%detected_lang%" formatter_tool
 
 if "%formatter_tool%"=="" (
-    echo FEHLER: Kein Formatter für %detected_lang% verfügbar!
+    echo ERROR: No formatter available for %detected_lang%!
     exit /b 1
 )
 
@@ -1745,19 +1754,19 @@ if "%formatter_tool%"=="" (
 call :get_temp_extension "%detected_lang%" temp_ext
 set "temp_file=%TEMP_DIR%\temp_format%temp_ext%"
 
-echo Erstelle temporäre Datei: %temp_file%
+echo Create temporary file: %temp_file%
 copy "%file_path%" "%temp_file%" >nul 2>&1
 
 :: KORRIGIERT: Verwende formatter_tool statt detected_lang
-echo Formatiere als %detected_lang% mit %formatter_tool%...
+echo Format as %detected_lang% with %formatter_tool%...
 call :format_file "%temp_file%" "%formatter_tool%"
 
 if not errorlevel 1 (
-    echo Kopiere formatierte Datei zurück...
+    echo Copy formatted file back...
     copy "%temp_file%" "%file_path%" >nul 2>&1
-    echo Formatierung erfolgreich!
+    echo Formatting successful!
 ) else (
-    echo FEHLER: Formatierung fehlgeschlagen!
+    echo ERROR: Formatting failed!
 )
 
 :: Aufräumen
@@ -1769,7 +1778,7 @@ exit /b 0
 set "result_var=%~1"
 
 echo.
-echo === MANUELLE SPRACH-AUSWAHL ===
+echo === MANUAL LANGUAGE SELECTION ===
 echo.
 echo [1]  JavaScript/TypeScript
 echo [2]  Python
@@ -1781,7 +1790,7 @@ echo [7]  Go
 echo [8]  SQL
 echo [9]  HTML
 echo [10] CSS
-echo [11] Plaintext (keine Formatierung)
+echo [11] Plaintext (No formatting)
 echo.
 set /p "manual_choice=Sprache wählen: "
 
@@ -1858,36 +1867,36 @@ exit /b 0
 :: Erweiterte Menü-Option hinzufügen
 :add_txt_menu_option
 echo.
-echo === TXT-DATEI FORMATIERUNG ===
-echo [25] TXT-Datei mit Sprach-Erkennung formatieren
-echo [26] Mehrere TXT-Dateien batch-formatieren
-echo [27] TXT-Datei analysieren (nur Erkennung)
+echo === TXT FILE FORMATTING ===
+echo [25] Format TXT file with language recognition
+echo [26] Batch format multiple TXT files
+echo [27] Analyze TXT file (recognition only)
 echo.
 exit /b 0
 
 :format_txt_file_menu
 echo.
-echo === TXT-DATEI FORMATIERUNG ===
+echo === TXT FILE FORMATTING ===
 echo.
 set /p "txt_file_path=Pfad zur TXT-Datei eingeben: "
 
 :: Prüfe ob Datei existiert
 if not exist "%txt_file_path%" (
-    echo FEHLER: Datei nicht gefunden: %txt_file_path%
+    echo ERROR: File not found: %txt_file_path%
     pause
     exit /b 1
 )
 
 :: Prüfe ob es wirklich eine TXT-Datei ist
 if /i not "%txt_file_path:~-4%"==".txt" (
-    echo WARNUNG: Datei hat keine .txt Erweiterung!
-    set /p "continue_anyway=Trotzdem fortfahren? (j/n): "
-    if not "!continue_anyway!"=="j" if not "!continue_anyway!"=="J" exit /b 0
+    echo WARNING: File has no .txt extension!
+    set /p "continue_anyway=Continue anyway? (y/n): "
+    if not "!continue_anyway!"=="y" if not "!continue_anyway!"=="Y" exit /b 0
 )
 
 :: Programmiersprache abfragen
 echo.
-echo Bitte Programmiersprache auswählen:
+echo Please select programming language:
 echo [1] JavaScript/TypeScript
 echo [2] Python
 echo [3] Java
@@ -1898,9 +1907,9 @@ echo [7] Go
 echo [8] SQL
 echo [9] HTML
 echo [10] CSS
-echo [11] Plaintext (keine Formatierung)
+echo [11] Plaintext (No formatting)
 echo.
-set /p "manual_choice=Sprache wählen: "
+set /p "manual_choice=Choose language: "
 
 set "detected_lang="
 if "%manual_choice%"=="1" set "detected_lang=javascript"
@@ -1916,7 +1925,7 @@ if "%manual_choice%"=="10" set "detected_lang=css"
 if "%manual_choice%"=="11" set "detected_lang=plaintext"
 
 if "%detected_lang%"=="plaintext" (
-    echo Datei wird als Plaintext behandelt - keine Formatierung möglich.
+    echo File is treated as plain text - no formatting possible.
     pause
     exit /b 0
 )
@@ -1925,7 +1934,7 @@ if "%detected_lang%"=="plaintext" (
 call :get_formatter_for_language "%detected_lang%" formatter_tool
 
 if "%formatter_tool%"=="" (
-    echo FEHLER: Kein Formatter für %detected_lang% verfügbar!
+    echo ERROR: No formatter available for %detected_lang%!
     pause
     exit /b 1
 )
@@ -1934,18 +1943,18 @@ if "%formatter_tool%"=="" (
 call :get_temp_extension "%detected_lang%" temp_ext
 set "temp_file=%TEMP_DIR%\temp_format%temp_ext%"
 
-echo Erstelle temporäre Datei: %temp_file%
+echo Create temporary file: %temp_file%
 copy "%txt_file_path%" "%temp_file%" >nul 2>&1
 
-echo Formatiere als %detected_lang% mit %formatter_tool%...
+echo Format as %detected_lang% with %formatter_tool%...
 call :format_file "%temp_file%" "%formatter_tool%"
 
 if not errorlevel 1 (
-    echo Kopiere formatierte Datei zurück...
+    echo Copy formatted file back...
     copy "%temp_file%" "%txt_file_path%" >nul 2>&1
-    echo Formatierung erfolgreich!
+    echo Formatting successful!
 ) else (
-    echo FEHLER: Formatierung fehlgeschlagen!
+    echo ERROR: Formatting failed!
 )
 
 :: Aufräumen
@@ -1953,10 +1962,10 @@ if exist "%temp_file%" del "%temp_file%" >nul 2>&1
 
 :: NEU: Nach Lizenzierung fragen
 echo.
-set /p "add_license=Lizenz zu dieser Datei hinzufügen? (j/n): "
-if /i "%add_license%"=="j" (
+set /p "add_license=Add license to this file? (y/n): "
+if /i "%add_license%"=="y" (
     call :add_license_to_file "%txt_file_path%" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
-    echo Lizenz erfolgreich hinzugefügt!
+    echo License successfully added!Lizenz erfolgreich hinzugefügt!
 )
 
 pause
@@ -1967,32 +1976,32 @@ exit /b 0
 :: ===========================================
 :complete_project_setup
 cls
-echo === KOMPLETTE PROJEKT-AUFBEREITUNG ===
+echo === COMPLETE PROJECT PREPARATION ===
 echo.
-echo Diese Funktion führt folgende Schritte aus:
-echo 1. Alle Code-Dateien formatieren
-echo 2. Lizenzen zu allen Dateien hinzufügen
-echo 3. Projekt-Struktur analysieren
-echo 4. Zusammenfassungs-Report erstellen
+echo This function performs the following steps:
+echo 1. format all code files
+echo 2. add licenses to all files
+echo 3. analyze project structure
+echo 4. create summary report
 echo.
-set /p "project_dir=Projekt-Verzeichnis (leer = aktuell): "
+set /p "project_dir=Project directory (empty = current): "
 if "%project_dir%"=="" set "project_dir=%CD%"
 
 if not exist "%project_dir%" (
-    echo FEHLER: Verzeichnis nicht gefunden!
+    echo ERROR: Directory not found!
     pause
     exit /b 1
 )
 
 echo.
-echo Projekt-Verzeichnis: %project_dir%
-echo Standard-Lizenz: %DEFAULT_LICENSE%
+echo Project directory: %project_dir%
+echo default license: %DEFAULT_LICENSE%
 echo.
-set /p "confirm_setup=Projekt-Aufbereitung starten? (j/n): "
-if not "%confirm_setup%"=="j" if not "%confirm_setup%"=="J" exit /b 0
+set /p "confirm_setup=Start project preparation? (y/n): "
+if not "%confirm_setup%"=="y" if not "%confirm_setup%"=="Y" exit /b 0
 
 echo.
-echo === STARTE PROJEKT-AUFBEREITUNG ===
+echo === START PROJECT PREPARATION ===
 echo.
 
 :: Statistiken
@@ -2007,7 +2016,7 @@ for /r "%project_dir%" %%f in (*.*) do (
     if "!supported!"=="true" (
         set /a total_files+=1
         echo.
-        echo [!total_files!] Verarbeite: %%f
+        echo [!total_files!] Process: %%f
 
         :: Formatierung
         call :get_formatter_for_file "%%f" formatter
@@ -2015,10 +2024,10 @@ for /r "%project_dir%" %%f in (*.*) do (
             call :format_file "%%f" "!formatter!"
             if not errorlevel 1 (
                 set /a formatted_files+=1
-                echo    └─ Formatiert mit !formatter!
+                echo    └─ Formatted with !formatter!
             ) else (
                 set /a error_files+=1
-                echo    └─ FEHLER beim Formatieren
+                echo    └─ ERROR during formatting
             )
         )
 
@@ -2026,10 +2035,10 @@ for /r "%project_dir%" %%f in (*.*) do (
         call :add_license_to_file "%%f" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
         if not errorlevel 1 (
             set /a licensed_files+=1
-            echo    └─ Lizenz hinzugefügt
+            echo    └─ License added
         ) else (
             set /a error_files+=1
-            echo    └─ FEHLER bei Lizenzierung
+            echo    └─ ERROR during licensing
         )
     )
 )
@@ -2037,40 +2046,40 @@ for /r "%project_dir%" %%f in (*.*) do (
 :: Report erstellen
 set "report_file=%project_dir%\project_setup_report.txt"
 (
-echo === PROJEKT-AUFBEREITUNG REPORT ===
-echo Datum: %date% %time%
-echo Verzeichnis: %project_dir%
+echo === PROJECT PROCESSING REPORT ===
+echo Date: %date% %time%
+echo Directory: %project_dir%
 echo.
-echo === STATISTIKEN ===
-echo Gesamt Dateien verarbeitet: %total_files%
-echo Erfolgreich formatiert: %formatted_files%
-echo Erfolgreich lizenziert: %licensed_files%
-echo Fehler aufgetreten: %error_files%
+echo === STATISTICS ===
+echo Total files processed: %total_files%
+echo Successfully formatted: %formatted_files%
+echo Successfully licensed: %licensed_files%
+echo Error occurred: %error_files%
 echo.
-echo === VERWENDETE EINSTELLUNGEN ===
-echo Standard-Lizenz: %DEFAULT_LICENSE%
-echo Autor: %DEFAULT_AUTHOR%
-echo Jahr: %DEFAULT_YEAR%
+echo === SETTINGS USED ===
+echo Default License: %DEFAULT_LICENSE%
+echo Author: %DEFAULT_AUTHOR%
+echo Year: %DEFAULT_YEAR%
 echo.
-echo === UNTERSTÜTZTE DATEIERWEITERUNGEN ===
+echo === SUPPORTED FILE EXTENSIONS ===
 echo %SUPPORTED_EXTENSIONS%
 ) > "%report_file%"
 
 echo.
-echo === PROJEKT-AUFBEREITUNG ABGESCHLOSSEN ===
+echo === PROJECT PROCESSING COMPLETED ===
 echo.
-echo Statistiken:
-echo - Verarbeitete Dateien: %total_files%
-echo - Formatierte Dateien: %formatted_files%
-echo - Lizenzierte Dateien: %licensed_files%
-echo - Fehler: %error_files%
+echo Statistics:
+echo - Processed files: %total_files%
+echo - Formatted files: %formatted_files%
+echo - Licensed files: %licensed_files%
+echo - Errors: %error_files%
 echo.
-echo Report erstellt: %report_file%
+echo Report created: %report_file%
 echo.
 pause
 exit /b 0
 
 :: Ende des Scripts
 echo.
-echo Script beendet.
+echo Script finished.
 pause
