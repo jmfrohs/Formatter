@@ -1,21 +1,22 @@
 # Batch-Code-Formatter
 
-**Batch-Code-Formatter** is a comprehensive Windows batch tool for automatically formatting and licensing source code files in various programming languages. It supports the installation and management of formatters, adding license headers, as well as analyzing and preparing entire projects.
+**Batch-Code-Formatter** is a comprehensive Windows batch tool for automatically formatting and licensing source code files in various programming languages. It supports formatter installation, license management, project-wide processing, TXT file language detection, and even experimental batch file formatting.
 
 ---
 
 ## Features
 
-- **Automatic formatting** for many languages: JavaScript, Python, Java, C/C++, PHP, Rust, Go, HTML, CSS, and more.
-- **License management**: Automatically add license headers to files (MIT, Apache, GPL, BSD, ISC, Custom).
-- **Batch and single file processing**.
-- **Language detection for TXT files** with manual selection option.
-- **Tool installation** directly from the menu (Prettier, Black, clang-format, etc.).
-- **Configurable defaults** (license, author, year, etc.).
-- **Project-wide processing** with statistics report.
-- **Colored console menu** and ASCII logo.
-- **Backup function** before licensing.
-- **Cache and configuration management**.
+- **Automatic formatting** for many languages: JavaScript, Python, Java, C/C++, PHP, Rust, Go, HTML, CSS, and more
+- **Batch and single file processing**
+- **License management**: Add or remove license headers (MIT, Apache, GPL, BSD, ISC, Custom, None)
+- **TXT file formatting** with language detection and manual selection
+- **Experimental batch file formatting** (`.bat`, `.cmd`)
+- **Tool installation** directly from the menu (Prettier, Black, clang-format, etc.)
+- **Configurable defaults** (license, author, year, etc.)
+- **Project-wide processing** with statistics report
+- **Colored console menu** and ASCII logo
+- **Backup function** before licensing (optional)
+- **Cache and configuration management**
 
 ---
 
@@ -31,13 +32,14 @@
   - [Rust](https://www.rust-lang.org/tools/install) (for rustfmt)
   - [Go](https://go.dev/dl/) (for gofmt)
   - [LLVM/Clang](https://llvm.org/) (for clang-format)
+  - **PowerShell** (for batch file formatting)
 
 ---
 
 ## Installation
 
 1. **Download the repository**  
-   Download the repository as a ZIP or clone it:
+   Download as ZIP or clone:
 
    ```sh
    git clone https://github.com/your-username/Batch-Code-Formatter.git
@@ -47,7 +49,7 @@
    Open `Batch-Code-Formatter.bat` by double-clicking or in the terminal:
 
    ```sh
-   cd path\to\folder
+   cd path\to\Batch-Code-Formatter
    Batch-Code-Formatter.bat
    ```
 
@@ -58,14 +60,15 @@
 
 ## Usage
 
-### Main Menu
+### Main Menu Options
 
-- **Formatting**: Format and license a single file or an entire directory.
-- **Licensing**: Add or remove licenses to/from single or multiple files.
-- **Tool installation**: Install formatters for various languages.
-- **Configuration**: Manage default license, author, year, templates.
-- **TXT file formatting**: Select language, format, and add license.
-- **Project preparation**: Format and license an entire project.
+- **Formatting**: Format and license a single file or an entire directory
+- **Licensing**: Add or remove licenses to/from single or multiple files
+- **Tool installation**: Install formatters for various languages
+- **Configuration**: Manage default license, author, year, templates
+- **TXT file formatting**: Select language, format, and add license
+- **Batch file formatting**: Format `.bat`/`.cmd` files (experimental)
+- **Project preparation**: Format and license an entire project
 
 ### Example: Format a TXT file
 
@@ -74,6 +77,13 @@
 3. Choose the programming language.
 4. The file will be temporarily renamed, formatted, and copied back.
 5. Optionally: Add a license header.
+
+### Example: Format a Batch file
+
+1. Select `[28] Batch-Datei formatieren (experimentell)` in the menu.
+2. Enter the path to your `.bat` or `.cmd` file.
+3. The file will be cleaned up (trailing spaces removed, line endings unified).
+4. Optionally: Add a license header.
 
 ---
 
@@ -101,6 +111,7 @@ You can adjust default license, author, year, supported file types, and more.
 - The script creates backups before license changes if enabled.
 - Some formatters require prior installation of Node.js, Python, Java, PHP, Rust, or Go.
 - TXT file formatting is performed after manual language selection.
+- Batch file formatting is experimental and only unifies line endings and trims trailing spaces.
 - The tool is modular and easily extendable.
 
 ---
