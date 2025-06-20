@@ -1,126 +1,126 @@
 # Batch-Code-Formatter
 
-**Batch-Code-Formatter** ist ein umfangreiches Windows-Batch-Tool zum automatischen Formatieren und Lizenzieren von Quellcode-Dateien verschiedenster Programmiersprachen. Es unterstützt die Installation und Verwaltung von Formattern, das Hinzufügen von Lizenz-Headern, sowie die Analyse und Aufbereitung ganzer Projekte.
+**Batch-Code-Formatter** is a comprehensive Windows batch tool for automatically formatting and licensing source code files in various programming languages. It supports the installation and management of formatters, adding license headers, as well as analyzing and preparing entire projects.
 
 ---
 
 ## Features
 
-- **Automatische Formatierung** für viele Sprachen: JavaScript, Python, Java, C/C++, PHP, Rust, Go, HTML, CSS, uvm.
-- **Lizenzverwaltung**: Lizenz-Header automatisch zu Dateien hinzufügen (MIT, Apache, GPL, BSD, ISC, Custom).
-- **Batch- und Einzeldatei-Bearbeitung**.
-- **Spracherkennung für TXT-Dateien** mit manueller Auswahlmöglichkeit.
-- **Tool-Installation** direkt aus dem Menü (Prettier, Black, clang-format, usw.).
-- **Konfigurierbare Standardwerte** (Lizenz, Autor, Jahr, etc.).
-- **Projektweite Aufbereitung** mit Statistik-Report.
-- **Farbiges Konsolenmenü** und ASCII-Logo.
-- **Backup-Funktion** vor Lizenzierung.
-- **Cache- und Konfigurationsmanagement**.
+- **Automatic formatting** for many languages: JavaScript, Python, Java, C/C++, PHP, Rust, Go, HTML, CSS, and more.
+- **License management**: Automatically add license headers to files (MIT, Apache, GPL, BSD, ISC, Custom).
+- **Batch and single file processing**.
+- **Language detection for TXT files** with manual selection option.
+- **Tool installation** directly from the menu (Prettier, Black, clang-format, etc.).
+- **Configurable defaults** (license, author, year, etc.).
+- **Project-wide processing** with statistics report.
+- **Colored console menu** and ASCII logo.
+- **Backup function** before licensing.
+- **Cache and configuration management**.
 
 ---
 
-## Voraussetzungen
+## Requirements
 
-- **Windows** (getestet ab Windows 10)
-- **cmd.exe** (Batch-Dateien)
-- Für bestimmte Formatter:  
-  - [Node.js](https://nodejs.org/) (für Prettier, ESLint, JS-Beautify)
-  - [Python](https://www.python.org/) (für Black, autopep8, YAPF, isort)
-  - [Java](https://adoptium.net/) (für google-java-format)
-  - [PHP](https://www.php.net/) (für PHP-CS-Fixer)
-  - [Rust](https://www.rust-lang.org/tools/install) (für rustfmt)
-  - [Go](https://go.dev/dl/) (für gofmt)
-  - [LLVM/Clang](https://llvm.org/) (für clang-format)
+- **Windows** (tested on Windows 10 and above)
+- **cmd.exe** (batch files)
+- For certain formatters:  
+  - [Node.js](https://nodejs.org/) (for Prettier, ESLint, JS-Beautify)
+  - [Python](https://www.python.org/) (for Black, autopep8, YAPF, isort)
+  - [Java](https://adoptium.net/) (for google-java-format)
+  - [PHP](https://www.php.net/) (for PHP-CS-Fixer)
+  - [Rust](https://www.rust-lang.org/tools/install) (for rustfmt)
+  - [Go](https://go.dev/dl/) (for gofmt)
+  - [LLVM/Clang](https://llvm.org/) (for clang-format)
 
 ---
 
 ## Installation
 
-1. **Repository herunterladen**  
-   Lade das Repository als ZIP herunter oder klone es:
+1. **Download the repository**  
+   Download the repository as a ZIP or clone it:
 
    ```sh
-   git clone https://github.com/dein-benutzername/Batch-Code-Formatter.git
+   git clone https://github.com/your-username/Batch-Code-Formatter.git
    ```
 
-2. **Batch-Datei starten**  
-   Öffne die `Batch-Code-Formatter.bat` per Doppelklick oder im Terminal:
+2. **Start the batch file**  
+   Open `Batch-Code-Formatter.bat` by double-clicking or in the terminal:
 
    ```sh
-   cd Pfad\zum\Ordner
+   cd path\to\folder
    Batch-Code-Formatter.bat
    ```
 
-3. **Formatter installieren**  
-   Über das Menü können alle benötigten Tools automatisch installiert werden.
+3. **Install formatters**  
+   All required tools can be installed automatically via the menu.
 
 ---
 
-## Bedienung
+## Usage
 
-### Hauptmenü
+### Main Menu
 
-- **Formatierung**: Einzelne Datei oder ganzes Verzeichnis formatieren und lizenzieren.
-- **Lizenzierung**: Lizenz zu einzelnen oder mehreren Dateien hinzufügen/entfernen.
-- **Tool-Installation**: Formatter für verschiedene Sprachen installieren.
-- **Konfiguration**: Standard-Lizenz, Autor, Jahr, Templates verwalten.
-- **TXT-Datei-Formatierung**: Sprache wählen, formatieren und Lizenz hinzufügen.
-- **Projekt-Aufbereitung**: Komplettes Projekt formatieren und lizenzieren.
+- **Formatting**: Format and license a single file or an entire directory.
+- **Licensing**: Add or remove licenses to/from single or multiple files.
+- **Tool installation**: Install formatters for various languages.
+- **Configuration**: Manage default license, author, year, templates.
+- **TXT file formatting**: Select language, format, and add license.
+- **Project preparation**: Format and license an entire project.
 
-### Beispiel: TXT-Datei formatieren
+### Example: Format a TXT file
 
-1. Wähle im Menü `[25] TXT-Datei mit Sprach-Erkennung formatieren`.
-2. Gib den Pfad zur TXT-Datei ein.
-3. Wähle die Programmiersprache aus.
-4. Die Datei wird temporär umbenannt, formatiert und zurückkopiert.
-5. Optional: Lizenz-Header hinzufügen.
-
----
-
-## Konfiguration
-
-Die Einstellungen werden in `config\settings.ini` gespeichert.  
-Hier kannst du Standard-Lizenz, Autor, Jahr, unterstützte Dateitypen und weitere Optionen anpassen.
+1. Select `[25] Format TXT file with language detection` in the menu.
+2. Enter the path to the TXT file.
+3. Choose the programming language.
+4. The file will be temporarily renamed, formatted, and copied back.
+5. Optionally: Add a license header.
 
 ---
 
-## Unterstützte Lizenzen
+## Configuration
+
+Settings are stored in `config/settings.ini`.  
+You can adjust default license, author, year, supported file types, and more.
+
+---
+
+## Supported Licenses
 
 - MIT
 - Apache-2.0
 - GPL-3.0
 - BSD-3-Clause
 - ISC
-- Custom (frei editierbar)
-- None (nur Copyright)
+- Custom (editable)
+- None (copyright only)
 
 ---
 
-## Hinweise
+## Notes
 
-- Das Script erstellt Backups vor Lizenzänderungen, sofern aktiviert.
-- Für einige Formatter ist eine vorherige Installation von Node.js, Python, Java, PHP, Rust oder Go erforderlich.
-- Die Formatierung von TXT-Dateien erfolgt nach manueller Sprachauswahl.
-- Das Tool ist modular aufgebaut und kann leicht erweitert werden.
-
----
-
-## Fehlerbehebung
-
-- **Formatter nicht gefunden:** Stelle sicher, dass die benötigten Tools installiert und im PATH sind.
-- **Lizenz wird nicht hinzugefügt:** Prüfe, ob bereits ein Copyright-Hinweis in der Datei existiert.
-- **Menü zeigt keine Farben:** Die Farbausgabe ist auf Konsolenebene (`color`-Befehl) beschränkt.
+- The script creates backups before license changes if enabled.
+- Some formatters require prior installation of Node.js, Python, Java, PHP, Rust, or Go.
+- TXT file formatting is performed after manual language selection.
+- The tool is modular and easily extendable.
 
 ---
 
-## Lizenz
+## Troubleshooting
 
-Dieses Projekt steht unter der MIT-Lizenz.  
-Siehe [LICENSE](LICENSE) für Details.
+- **Formatter not found:** Make sure the required tools are installed and in your PATH.
+- **License not added:** Check if a copyright notice already exists in the file.
+- **Menu shows no colors:** Color output is limited to the console (`color` command).
 
 ---
 
-## Autor
+## License
+
+This project is licensed under the MIT License.  
+See [LICENSE](LICENSE) for details.
+
+---
+
+## Author
 
 **jmfrohs**  
 2025
