@@ -162,12 +162,12 @@ echo.
 set /p choice=Choose an option (0-30):
 
 :: TXT-Optionen direkt behandeln
-if "%choice%"=="25" call :format_txt_file_menu
-if "%choice%"=="26" call :batch_format_txt_files
-if "%choice%"=="27" call :analyze_txt_file
-if "%choice%"=="28" call :format_batch_file
-if "%choice%"=="29" call :restore_license_from_backup
-if "%choice%"=="30" call :show_last_project_stats
+if "%choice%"=="25" call :format_txt_file_menu & goto :main_menu
+if "%choice%"=="26" call :batch_format_txt_files & goto :main_menu
+if "%choice%"=="27" call :analyze_txt_file & goto :main_menu
+if "%choice%"=="28" call :format_batch_file & goto :main_menu
+if "%choice%"=="29" call :restore_license_from_backup & goto :main_menu
+if "%choice%"=="30" call :show_last_project_stats & goto :main_menu
 if "%choice%"=="31" goto :settings_menu
 if "%choice%"=="0" exit /b 0
 
@@ -491,41 +491,45 @@ exit /b 0
 set "choice=%~1"
 
 :: Formatierung
-if "%choice%"=="1" call :format_and_license
-if "%choice%"=="2" call :format_and_license_directory
-if "%choice%"=="3" call :format_only
+if "%choice%"=="1" call :format_and_license & goto :main_menu
+if "%choice%"=="2" call :format_and_license_directory & goto :main_menu
+if "%choice%"=="3" call :format_only & goto :main_menu
 
 :: Lizenzierung
-if "%choice%"=="4" call :license_single_file
-if "%choice%"=="5" call :license_current_directory
-if "%choice%"=="6" call :remove_license_from_file
-if "%choice%"=="7" call :add_license_to_files
-if "%choice%"=="8" call :advanced_file_selection
-if "%choice%"=="9" call :license_entire_directory
-if "%choice%"=="10" call :complete_project_setup
+if "%choice%"=="4" call :license_single_file & goto :main_menu
+if "%choice%"=="5" call :license_current_directory & goto :main_menu
+if "%choice%"=="6" call :remove_license_from_file & goto :main_menu
+if "%choice%"=="7" call :add_license_to_files & goto :main_menu
+if "%choice%"=="8" call :advanced_file_selection & goto :main_menu
+if "%choice%"=="9" call :license_entire_directory & goto :main_menu
+if "%choice%"=="10" call :complete_project_setup & goto :main_menu
 
 :: Tool-Installation
-if "%choice%"=="11" call :install_javascript_tools
-if "%choice%"=="12" call :install_python_tools
-if "%choice%"=="13" call :install_java_tools
-if "%choice%"=="14" call :install_cpp_tools
-if "%choice%"=="15" call :install_php_tools
-if "%choice%"=="16" call :install_rust_tools
-if "%choice%"=="17" call :install_go_tools
-if "%choice%"=="18" call :install_all_tools
-if "%choice%"=="19" call :show_all_tool_status
+if "%choice%"=="11" call :install_javascript_tools & goto :main_menu
+if "%choice%"=="12" call :install_python_tools & goto :main_menu
+if "%choice%"=="13" call :install_java_tools & goto :main_menu
+if "%choice%"=="14" call :install_cpp_tools & goto :main_menu
+if "%choice%"=="15" call :install_php_tools & goto :main_menu
+if "%choice%"=="16" call :install_rust_tools & goto :main_menu
+if "%choice%"=="17" call :install_go_tools & goto :main_menu
+if "%choice%"=="18" call :install_all_tools & goto :main_menu
+if "%choice%"=="19" call :show_all_tool_status & goto :main_menu
 
 :: Konfiguration
-if "%choice%"=="20" call :manage_license_templates
-if "%choice%"=="21" call :change_default_license
-if "%choice%"=="22" call :list_available_licenses
-if "%choice%"=="23" call :clear_cache
-if "%choice%"=="24" call :create_default_config
+if "%choice%"=="20" call :manage_license_templates & goto :main_menu
+if "%choice%"=="21" call :change_default_license & goto :main_menu
+if "%choice%"=="22" call :list_available_licenses & goto :main_menu
+if "%choice%"=="23" call :clear_cache & goto :main_menu
+if "%choice%"=="24" call :create_default_config & goto :main_menu
 
-:: TXT-Datei Formatierung
-if "%choice%"=="25" call :format_txt_file_menu
-if "%choice%"=="26" call :batch_format_txt_files
-if "%choice%"=="27" call :analyze_txt_file
+:: TXT- und Batch-Datei Formatierung und weitere Menüpunkte
+if "%choice%"=="25" call :format_txt_file_menu & goto :main_menu
+if "%choice%"=="26" call :batch_format_txt_files & goto :main_menu
+if "%choice%"=="27" call :analyze_txt_file & goto :main_menu
+if "%choice%"=="28" call :format_batch_file & goto :main_menu
+if "%choice%"=="29" call :restore_license_from_backup & goto :main_menu
+if "%choice%"=="30" call :show_last_project_stats & goto :main_menu
+if "%choice%"=="31" goto :settings_menu
 
 exit /b 0
 
@@ -1184,6 +1188,8 @@ if /i "%extension%"==".c" set "formatter_tool=clang-format"
 if /i "%extension%"==".cpp" set "formatter_tool=clang-format"
 if /i "%extension%"==".h" set "formatter_tool=clang-format"
 if /i "%extension%"==".php" set "formatter_tool=php-cs-fixer"
+if /i "%extension%"==".bat" set "formatter_tool=batch"
+if /i "%extension%"==".cmd" set "formatter_tool=batch"
 
 set "%result_var%=%formatter_tool%"
 exit /b 0
@@ -1240,6 +1246,13 @@ if "%formatter%"=="php-cs-fixer" (
     ) else (
         echo WARNING: PHP not installed!
     )
+)
+
+if "%formatter%"=="batch" (
+    REM Batch-Datei formatieren: Zeilenenden vereinheitlichen, Leerzeichen am Zeilenende entfernen
+    set "temp_file=%TEMP_DIR%\temp_batch_format.bat"
+    powershell -Command "(Get-Content -Raw '%file_path%') -replace '\r\n', \"`n\" | Set-Content -NoNewline '%temp_file%'; (Get-Content '%temp_file%') | ForEach-Object { $_.TrimEnd() } | Set-Content '%temp_file%'"
+    move /y "%temp_file%" "%file_path%" >nul 2>&1
 )
 
 exit /b 0
@@ -1811,7 +1824,7 @@ echo Batch file formatted (spaces removed, line endings standardized).
 
 :: Lizenz hinzufügen anbieten
 echo.
-Batch file formatted (spaces removed, line endings unified).set /p "add_license=Add license to this file? (y/n): "
+set /p "add_license=Add license to this file? (y/n): "
 if /i "%add_license%"=="y" (
     call :add_license_to_file "%file_path%" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
     echo License successfully added!
