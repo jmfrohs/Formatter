@@ -99,7 +99,11 @@ set "PHP_CS_FIXER_URL=https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/down
 :: ===========================================
 :main_menu
 cls
-color 0B
+if defined MENU_COLOR (
+    color %MENU_COLOR%
+) else (
+    color 0B
+)
 echo.
 echo ===========================
 echo   Batch-Code-Formatter
@@ -148,17 +152,21 @@ echo  25  Format TXT file with language detection
 echo  26  Batch format multiple TXT files
 echo  27  Analyze TXT file (detection only)
 echo  28  Format batch file (experimental)
+echo  29  Show last project statistics
+echo  30  Settings Menu
 echo.
 
 echo   0  Exit
 echo.
-set /p choice=Choose an option (0-28):
+set /p choice=Choose an option (0-30):
 
 :: TXT-Optionen direkt behandeln
 if "%choice%"=="25" call :format_txt_file_menu
 if "%choice%"=="26" call :batch_format_txt_files
 if "%choice%"=="27" call :analyze_txt_file
 if "%choice%"=="28" call :format_batch_file
+if "%choice%"=="29" call :show_last_project_stats
+if "%choice%"=="30" goto :settings_menu
 if "%choice%"=="0" exit /b 0
 
 :: Alle anderen Optionen an die Prozess-Funktion übergeben
@@ -174,6 +182,92 @@ if "%choice%"=="27" call :analyze_txt_file
 
 :: Problem: Das ursprüngliche Script hat wahrscheinlich eine unvollständige
 :: Hauptmenü-Funktion, die diese Optionen nicht anzeigt oder verarbeitet.
+
+:settings_menu
+cls
+echo ===========================
+echo        SETTINGS MENU
+echo ===========================
+echo.
+echo [1] Change menu color
+echo [2] Toggle backup before licensing (currently: %BACKUP_BEFORE_LICENSE%)
+echo [3] Change default author (currently: %DEFAULT_AUTHOR%)
+echo [4] Change default year (currently: %DEFAULT_YEAR%)
+echo [0] Back to main menu
+echo.
+set /p "settings_choice=Choose an option: "
+
+if "%settings_choice%"=="1" (
+    call :change_menu_color
+    goto :settings_menu
+)
+if "%settings_choice%"=="2" (
+    if "%BACKUP_BEFORE_LICENSE%"=="true" (
+        call :update_config "BACKUP_BEFORE_LICENSE" "false"
+        set "BACKUP_BEFORE_LICENSE=false"
+        echo Backup before licensing is now OFF.
+    ) else (
+        call :update_config "BACKUP_BEFORE_LICENSE" "true"
+        set "BACKUP_BEFORE_LICENSE=true"
+        echo Backup before licensing is now ON.
+    )
+    pause
+    goto :settings_menu
+)
+if "%settings_choice%"=="3" (
+    set /p "new_author=Enter new default author: "
+    call :update_config "DEFAULT_AUTHOR" "%new_author%"
+    set "DEFAULT_AUTHOR=%new_author%"
+    echo Default author updated!
+    pause
+    goto :settings_menu
+)
+if "%settings_choice%"=="4" (
+    set /p "new_year=Enter new default year: "
+    call :update_config "DEFAULT_YEAR" "%new_year%"
+    set "DEFAULT_YEAR=%new_year%"
+    echo Default year updated!
+    pause
+    goto :settings_menu
+)
+if "%settings_choice%"=="0" goto :main_menu
+
+goto :settings_menu
+
+:change_menu_color
+echo.
+echo === CHANGE MENU COLOR ===
+echo.
+echo Available colors:
+echo  0 = Black   8 = Gray
+echo  1 = Blue    9 = Light Blue
+echo  2 = Green   A = Light Green
+echo  3 = Aqua    B = Light Aqua
+echo  4 = Red     C = Light Red
+echo  5 = Purple  D = Light Purple
+echo  6 = Yellow  E = Light Yellow
+echo  7 = White   F = Bright White
+echo.
+set /p "color_code=Enter color code (e.g. 0A): "
+color %color_code%
+call :update_config "MENU_COLOR" "%color_code%"
+echo Menu color changed!
+pause
+exit /b 0
+
+:show_last_project_stats
+cls
+echo === LAST PROJECT STATISTICS ===
+echo.
+set "report_file=project_setup_report.txt"
+if exist "%report_file%" (
+    type "%report_file%"
+) else (
+    echo No project statistics found!
+)
+echo.
+pause
+goto :main_menu
 
 :: Zusätzlich sollte die is_supported_extension Funktion erweitert werden:
 :is_supported_extension
@@ -207,6 +301,7 @@ if not exist "%CONFIG_FILE%" (
 
 :: Lade Konfiguration
 call :load_config
+if defined MENU_COLOR color %MENU_COLOR%
 exit /b 0
 
 :create_default_licenses
@@ -552,6 +647,15 @@ if "%tmpl_choice%"=="3" (
         echo Template already exists!
     ) else (
         echo.>"%LICENSES_DIR%\%new_tmpl%"
+
+        echo.
+        echo Please edit the template to add your license text.
+        echo The following placeholders are available:
+        echo - {YEAR}: Current year
+        echo - {AUTHOR}: Your name
+        echo - {CUSTOM_HEADER}: Custom header text
+        echo - {CUSTOM_FOOTER}: Custom footer text
+        echo.
         notepad "%LICENSES_DIR%\%new_tmpl%"
     )
     pause
@@ -576,6 +680,7 @@ cls
 echo === REMOVE LICENSE FROM FILE ===
 echo.
 set /p "file_path=Enter file path: "
+set "file_path=%file_path:"=%"
 if not exist "%file_path%" (
     echo ERROR: File not found!
     pause
@@ -641,11 +746,11 @@ for /f "usebackq delims=" %%a in ("%LICENSES_FILE%") do (
         if not "!line!"=="" (
             :: Ersetze Platzhalter
             set "processed_line=!line!"
-            set "processed_line=!processed_line:{YEAR}=%year%!"
-            set "processed_line=!processed_line:{AUTHOR}=%author%!"
+            set "processed_line=!processed_line:{YEAR}=%year%!"""
+            set "processed_line=!processed_line:{AUTHOR}=%author%!"""
             if "%license_name%"=="Custom" (
-                set "processed_line=!processed_line:{CUSTOM_HEADER}=%CUSTOM_HEADER%!"
-                set "processed_line=!processed_line:{CUSTOM_FOOTER}=%CUSTOM_FOOTER%!"
+                set "processed_line=!processed_line:{CUSTOM_HEADER}=%CUSTOM_HEADER%!"""
+                set "processed_line=!processed_line:{CUSTOM_FOOTER}=%CUSTOM_FOOTER%!"""
             )
             echo !processed_line!>> "%output_file%"
         ) else (
@@ -664,7 +769,8 @@ exit /b 1
 
 :license_single_file
 echo.
-set /p "file_path=Pfad zur Datei eingeben: "
+set /p "file_path=Enter file path: "
+set "file_path=%file_path:"=%"
 if not exist "%file_path%" (
     echo ERROR: File not found!
     pause
@@ -697,11 +803,11 @@ if "%BACKUP_BEFORE_LICENSE%"=="true" (
 call :get_license_template "%license_type%" license_template
 
 :: Ersetze Platzhalter
-set "license_template=!license_template:{YEAR}=%year%!"
-set "license_template=!license_template:{AUTHOR}=%author%!"
+set "license_template=!license_template:{YEAR}=%year%!"""
+set "license_template=!license_template:{AUTHOR}=%author%!"""
 if "%license_type%"=="Custom" (
-    set "license_template=!license_template:{CUSTOM_HEADER}=%CUSTOM_HEADER%!"
-    set "license_template=!license_template:{CUSTOM_FOOTER}=%CUSTOM_FOOTER%!"
+    set "license_template=!license_template:{CUSTOM_HEADER}=%CUSTOM_HEADER%!"""
+    set "license_template=!license_template:{CUSTOM_FOOTER}=%CUSTOM_FOOTER%!"""
 )
 
 :: Prüfe ob bereits eine Lizenz vorhanden ist
@@ -930,7 +1036,9 @@ exit /b 0
 cls
 echo === FORMAT CODE + ADD LICENSE ===
 echo.
-set /p "file_path=Pfad zur Datei eingeben: "
+set /p "file_path=Enter file path (0 = Main Menu): "
+set "file_path=%file_path:"=%"
+if "%file_path%"=="0" goto :main_menu
 if not exist "%file_path%" (
     echo ERROR: File not found!
     pause
@@ -962,7 +1070,7 @@ echo === FORMAT AND LICENSE DIRECTORY ===
 echo.
 set /p "dir_path=Enter directory path (leave empty for current): "
 if "%dir_path%"=="" set "dir_path=%CD%"
-
+set "dir_path=%dir_path:"=%"
 if not exist "%dir_path%" (
     echo ERROR: Directory not found!
     pause
@@ -1506,7 +1614,8 @@ exit /b 0
 cls
 echo === FORMAT ONLY (WITHOUT LICENSE) ===
 echo.
-set /p "file_path=Enter the path to the file: "
+set /p "file_path=Enter file path: "
+set "file_path=%file_path:"=%"
 if not exist "%file_path%" (
     echo ERROR: File not found!
     pause
@@ -1589,6 +1698,7 @@ cls
 echo === FORMAT BATCH FILE (EXPERIMENTAL) ===
 echo.
 set /p "file_path=Path to the .bat or .cmd file: "
+set "file_path=%file_path:"=%"
 if not exist "%file_path%" (
     echo ERROR: File not found!
     pause
@@ -1643,7 +1753,7 @@ echo [9] HTML
 echo [10] CSS
 echo [11] Plaintext (No formatting)
 echo.
-set /p "manual_choice=Select language: "
+set /p "manual_choice=Select language (0 = Main Menu): "
 
 set "detected_lang="
 if "%manual_choice%"=="1" set "detected_lang=javascript"
@@ -1657,6 +1767,7 @@ if "%manual_choice%"=="8" set "detected_lang=sql"
 if "%manual_choice%"=="9" set "detected_lang=html"
 if "%manual_choice%"=="10" set "detected_lang=css"
 if "%manual_choice%"=="11" set "detected_lang=plaintext"
+if "%manual_choice%"=="0" goto :main_menu
 
 if "%detected_lang%"=="plaintext" (
     echo File is treated as plain text - no formatting possible.
@@ -1791,6 +1902,7 @@ echo [8]  SQL
 echo [9]  HTML
 echo [10] CSS
 echo [11] Plaintext (No formatting)
+echo [0] Cancel
 echo.
 set /p "manual_choice=Sprache wählen: "
 
@@ -1805,6 +1917,7 @@ if "%manual_choice%"=="8" set "%result_var%=sql"
 if "%manual_choice%"=="9" set "%result_var%=html"
 if "%manual_choice%"=="10" set "%result_var%=css"
 if "%manual_choice%"=="11" set "%result_var%=plaintext"
+if "%manual_choice%"=="0" goto :main_menu
 
 exit /b 0
 
@@ -1875,23 +1988,25 @@ echo.
 exit /b 0
 
 :format_txt_file_menu
+setlocal enabledelayedexpansion
 echo.
 echo === TXT FILE FORMATTING ===
 echo.
 set /p "txt_file_path=Pfad zur TXT-Datei eingeben: "
+set "txt_file_path=%txt_file_path:"=%"   REM <-- Anführungszeichen entfernen
 
 :: Prüfe ob Datei existiert
-if not exist "%txt_file_path%" (
-    echo ERROR: File not found: %txt_file_path%
+if not exist "!txt_file_path!" (
+    echo ERROR: File not found: !txt_file_path!
     pause
+    endlocal
     exit /b 1
 )
-
 :: Prüfe ob es wirklich eine TXT-Datei ist
-if /i not "%txt_file_path:~-4%"==".txt" (
+if /i not "!txt_file_path:~-4!"==".txt" (
     echo WARNING: File has no .txt extension!
     set /p "continue_anyway=Continue anyway? (y/n): "
-    if not "!continue_anyway!"=="y" if not "!continue_anyway!"=="Y" exit /b 0
+    if /i not "!continue_anyway!"=="y" exit /b 0
 )
 
 :: Programmiersprache abfragen
@@ -1908,67 +2023,75 @@ echo [8] SQL
 echo [9] HTML
 echo [10] CSS
 echo [11] Plaintext (No formatting)
+echo [0] Cancel
 echo.
 set /p "manual_choice=Choose language: "
 
 set "detected_lang="
-if "%manual_choice%"=="1" set "detected_lang=javascript"
-if "%manual_choice%"=="2" set "detected_lang=python"
-if "%manual_choice%"=="3" set "detected_lang=java"
-if "%manual_choice%"=="4" set "detected_lang=cpp"
-if "%manual_choice%"=="5" set "detected_lang=php"
-if "%manual_choice%"=="6" set "detected_lang=rust"
-if "%manual_choice%"=="7" set "detected_lang=go"
-if "%manual_choice%"=="8" set "detected_lang=sql"
-if "%manual_choice%"=="9" set "detected_lang=html"
-if "%manual_choice%"=="10" set "detected_lang=css"
-if "%manual_choice%"=="11" set "detected_lang=plaintext"
+if "!manual_choice!"=="1" set "detected_lang=javascript"
+if "!manual_choice!"=="2" set "detected_lang=python"
+if "!manual_choice!"=="3" set "detected_lang=java"
+if "!manual_choice!"=="4" set "detected_lang=cpp"
+if "!manual_choice!"=="5" set "detected_lang=php"
+if "!manual_choice!"=="6" set "detected_lang=rust"
+if "!manual_choice!"=="7" set "detected_lang=go"
+if "!manual_choice!"=="8" set "detected_lang=sql"
+if "!manual_choice!"=="9" set "detected_lang=html"
+if "!manual_choice!"=="10" set "detected_lang=css"
+if "!manual_choice!"=="11" set "detected_lang=plaintext"
+if "!manual_choice!"=="0" (
+    endlocal
+    goto :main_menu
+)
 
-if "%detected_lang%"=="plaintext" (
+if "!detected_lang!"=="plaintext" (
     echo File is treated as plain text - no formatting possible.
     pause
+    endlocal
     exit /b 0
 )
 
 :: Hole den passenden Formatter
-call :get_formatter_for_language "%detected_lang%" formatter_tool
+call :get_formatter_for_language "!detected_lang!" formatter_tool
 
-if "%formatter_tool%"=="" (
-    echo ERROR: No formatter available for %detected_lang%!
+if "!formatter_tool!"=="" (
+    echo ERROR: No formatter available for !detected_lang!
     pause
+    endlocal
     exit /b 1
 )
 
 :: Temporäre Datei mit korrekter Erweiterung erstellen
-call :get_temp_extension "%detected_lang%" temp_ext
-set "temp_file=%TEMP_DIR%\temp_format%temp_ext%"
+call :get_temp_extension "!detected_lang!" temp_ext
+set "temp_file=%TEMP_DIR%\temp_format!temp_ext!"
 
-echo Create temporary file: %temp_file%
-copy "%txt_file_path%" "%temp_file%" >nul 2>&1
+echo Create temporary file: !temp_file!
+copy "!txt_file_path!" "!temp_file!" >nul 2>&1
 
-echo Format as %detected_lang% with %formatter_tool%...
-call :format_file "%temp_file%" "%formatter_tool%"
+echo Format as !detected_lang! with !formatter_tool!...
+call :format_file "!temp_file!" "!formatter_tool!"
 
 if not errorlevel 1 (
     echo Copy formatted file back...
-    copy "%temp_file%" "%txt_file_path%" >nul 2>&1
+    copy "!temp_file!" "!txt_file_path!" >nul 2>&1
     echo Formatting successful!
 ) else (
     echo ERROR: Formatting failed!
 )
 
 :: Aufräumen
-if exist "%temp_file%" del "%temp_file%" >nul 2>&1
+if exist "!temp_file!" del "!temp_file!" >nul 2>&1
 
 :: NEU: Nach Lizenzierung fragen
 echo.
 set /p "add_license=Add license to this file? (y/n): "
-if /i "%add_license%"=="y" (
-    call :add_license_to_file "%txt_file_path%" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
-    echo License successfully added!Lizenz erfolgreich hinzugefügt!
+if /i "!add_license!"=="y" (
+    call :add_license_to_file "!txt_file_path!" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
+    echo License successfully added!
 )
 
 pause
+endlocal
 exit /b 0
 
 :: ===========================================
@@ -2004,21 +2127,49 @@ echo.
 echo === START PROJECT PREPARATION ===
 echo.
 
-:: Statistiken
+:: Statistics
 set "total_files=0"
 set "formatted_files=0"
 set "licensed_files=0"
 set "error_files=0"
+set "skipped_files=0"
+set "backup_files=0"
+set "already_licensed=0"
+set "overwritten_licenses=0"
+set "plaintext_files=0"
+set "start_time=%time%"
 
-:: Durchlaufe alle Dateien
+:: First count all supported files
 for /r "%project_dir%" %%f in (*.*) do (
     call :is_supported_extension "%%f" supported
     if "!supported!"=="true" (
         set /a total_files+=1
-        echo.
-        echo [!total_files!] Process: %%f
+    )
+)
 
-        :: Formatierung
+:: Now process files with progress bar
+set "current_file=0"
+for /r "%project_dir%" %%f in (*.*) do (
+    call :is_supported_extension "%%f" supported
+    if "!supported!"=="true" (
+        set /a current_file+=1
+
+        set /a percent=100*current_file/total_files
+        set "bar="
+        for /l %%i in (1,1,50) do (
+            set /a "barpos=percent/2"
+            if %%i leq !barpos! (
+                set "bar=!bar!#"
+            ) else (
+                set "bar=!bar!."
+            )
+        )
+        <nul set /p="Progress: [!bar!] !percent!%% (!current_file! / !total_files!)`r"
+
+        echo.
+        echo [!current_file!] Process: %%f
+
+        :: Formatting
         call :get_formatter_for_file "%%f" formatter
         if not "!formatter!"=="" (
             call :format_file "%%f" "!formatter!"
@@ -2029,21 +2180,41 @@ for /r "%project_dir%" %%f in (*.*) do (
                 set /a error_files+=1
                 echo    └─ ERROR during formatting
             )
+        ) else (
+            set /a plaintext_files+=1
+            echo    └─ No formatter (treated as plain text)
         )
 
-        :: Lizenzierung
-        call :add_license_to_file "%%f" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%"
-        if not errorlevel 1 (
+        :: Licensing
+        set "license_added=0"
+        set "license_overwritten=0"
+        set "license_already=0"
+        set "backup_created=0"
+        call :add_license_to_file_stats "%%f" "%DEFAULT_LICENSE%" "%DEFAULT_AUTHOR%" "%DEFAULT_YEAR%" license_added license_overwritten license_already backup_created
+        if "!license_added!"=="1" (
             set /a licensed_files+=1
             echo    └─ License added
+        ) else if "!license_overwritten!"=="1" (
+            set /a licensed_files+=1
+            set /a overwritten_licenses+=1
+            echo    └─ License overwritten
+        ) else if "!license_already!"=="1" (
+            set /a already_licensed+=1
+            echo    └─ Already licensed (skipped)
         ) else (
             set /a error_files+=1
             echo    └─ ERROR during licensing
         )
+        if "!backup_created!"=="1" set /a backup_files+=1
+
+    ) else (
+        set /a skipped_files+=1
     )
 )
 
-:: Report erstellen
+set "end_time=%time%"
+
+:: Create report
 set "report_file=%project_dir%\project_setup_report.txt"
 (
 echo === PROJECT PROCESSING REPORT ===
@@ -2054,7 +2225,15 @@ echo === STATISTICS ===
 echo Total files processed: %total_files%
 echo Successfully formatted: %formatted_files%
 echo Successfully licensed: %licensed_files%
-echo Error occurred: %error_files%
+echo Overwritten licenses: %overwritten_licenses%
+echo Already licensed (skipped): %already_licensed%
+echo Plain text files (no formatting): %plaintext_files%
+echo Skipped files (unsupported): %skipped_files%
+echo Backup files created: %backup_files%
+echo Errors occurred: %error_files%
+echo.
+echo Start time: %start_time%
+echo End time:   %end_time%
 echo.
 echo === SETTINGS USED ===
 echo Default License: %DEFAULT_LICENSE%
@@ -2072,11 +2251,52 @@ echo Statistics:
 echo - Processed files: %total_files%
 echo - Formatted files: %formatted_files%
 echo - Licensed files: %licensed_files%
+echo - Overwritten licenses: %overwritten_licenses%
+echo - Already licensed (skipped): %already_licensed%
+echo - Plain text files: %plaintext_files%
+echo - Skipped files: %skipped_files%
+echo - Backup files: %backup_files%
 echo - Errors: %error_files%
 echo.
 echo Report created: %report_file%
 echo.
 pause
+exit /b 0
+
+:: Erweiterte Lizenzfunktion für Statistik
+:add_license_to_file_stats
+:: %1=file, %2=license, %3=author, %4=year, %5=out_added, %6=out_overwritten, %7=out_already, %8=out_backup
+setlocal enabledelayedexpansion
+set "file_path=%~1"
+set "license_type=%~2"
+set "author=%~3"
+set "year=%~4"
+set "added=0"
+set "overwritten=0"
+set "already=0"
+set "backup=0"
+
+if "%BACKUP_BEFORE_LICENSE%"=="true" (
+    copy "%file_path%" "%file_path%.bak" >nul 2>&1
+    if not errorlevel 1 set "backup=1"
+)
+
+findstr /C:"Copyright" "%file_path%" >nul 2>&1
+if not errorlevel 1 (
+    set "already=1"
+    set /p "overwrite=File already licensed. Overwrite? (y/n): "
+    if /i "!overwrite!"=="y" (
+        set "overwritten=1"
+        set "already=0"
+        call :add_license_to_file "%file_path%" "%license_type%" "%author%" "%year%"
+        set "added=1"
+    )
+) else (
+    call :add_license_to_file "%file_path%" "%license_type%" "%author%" "%year%"
+    set "added=1"
+)
+
+endlocal & set "%5=%added%" & set "%6=%overwritten%" & set "%7=%already%" & set "%8=%backup%"
 exit /b 0
 
 :: Ende des Scripts
