@@ -152,8 +152,9 @@ echo  25  Format TXT file with language detection
 echo  26  Batch format multiple TXT files
 echo  27  Analyze TXT file (detection only)
 echo  28  Format batch file (experimental)
-echo  29  Show last project statistics
-echo  30  Settings Menu
+echo  29  Restore last removed license
+echo  30  Show last project statistics
+echo  31  Settings Menu
 echo.
 
 echo   0  Exit
@@ -165,8 +166,9 @@ if "%choice%"=="25" call :format_txt_file_menu
 if "%choice%"=="26" call :batch_format_txt_files
 if "%choice%"=="27" call :analyze_txt_file
 if "%choice%"=="28" call :format_batch_file
-if "%choice%"=="29" call :show_last_project_stats
-if "%choice%"=="30" goto :settings_menu
+if "%choice%"=="29" call :restore_license_from_backup
+if "%choice%"=="30" call :show_last_project_stats
+if "%choice%"=="31" goto :settings_menu
 if "%choice%"=="0" exit /b 0
 
 :: Alle anderen Optionen an die Prozess-Funktion übergeben
@@ -675,53 +677,109 @@ if "%tmpl_choice%"=="4" (
 )
 exit /b 0
 
+@echo off
+
 :remove_license_from_file
 cls
 echo === REMOVE LICENSE FROM FILE ===
 echo.
 set /p "file_path=Enter file path: "
 set "file_path=%file_path:"=%"
+
 if not exist "%file_path%" (
     echo ERROR: File not found!
     pause
     exit /b 1
 )
 
-set "temp_file=%TEMP_DIR%\temp_nolicense.tmp"
+:: Backup der Lizenz (nur Lizenzblock) erstellen
+set "license_backup=%file_path%.license.bak"
+break > "%license_backup%"
 set "in_license=0"
-set "license_removed=0"
-break > "%temp_file%"
-setlocal enabledelayedexpansion
-REM --- Verwende findstr /n, damit auch Leerzeilen erhalten bleiben ---
+
+REM --- Lizenzblock extrahieren und sichern ---
 for /f "usebackq delims=" %%a in ('findstr /n "^" "%file_path%"') do (
     set "line=%%a"
     set "line=!line:*:=!"
-    if "!license_removed!"=="0" (
+    if "!in_license!"=="0" (
         if "!line:~0,2!"=="/*" set "in_license=1"
-        if "!in_license!"=="1" (
-            if "!line:~-2!"=="*/" (
-                set "in_license=0"
-                set "license_removed=1"
-                rem skip this line (end of license)
-            )
-            rem skip all lines in license block
-        ) else (
-            >>"%temp_file%" echo(!line!
-        )
-    ) else (
-        >>"%temp_file%" echo(!line!
+    )
+    if "!in_license!"=="1" (
+        echo(!line!>>"%license_backup%"
+        if "!line:~-2!"=="*/" set "in_license=0"
     )
 )
-endlocal
 
-move /y "%temp_file%" "%file_path%" >nul 2>&1
+:: Backup der ursprünglichen Datei erstellen
+set "backup_file=%file_path%.backup"
+copy "%file_path%" "%backup_file%" >nul
 if errorlevel 1 (
-    echo ERROR: Could not update file!
+    echo ERROR: Could not create backup!
     pause
     exit /b 1
 )
 
-echo License header removed (if present).
+echo Removing license blocks from "%file_path%"...
+
+:: Lizenz aus Datei entfernen - verwendet meine erste Version Logic
+set "temp_file=%TEMP%\license_temp_%RANDOM%.tmp"
+set "in_license_block=false"
+set "found_license=false"
+
+for /f "usebackq delims=" %%a in ("%file_path%") do (
+    set "line=%%a"
+    set "write_line=true"
+    
+    :: Prüfen ob Lizenzblock beginnt
+    echo !line! | findstr /c:"/*" >nul
+    if !errorlevel! equ 0 (
+        set "in_license_block=true"
+        set "found_license=true"
+        set "write_line=false"
+    )
+    
+    :: Prüfen ob Lizenzblock endet
+    if "!in_license_block!"=="true" (
+        echo !line! | findstr /c:"*/" >nul
+        if !errorlevel! equ 0 (
+            set "in_license_block=false"
+            set "write_line=false"
+        ) else (
+            set "write_line=false"
+        )
+    )
+    
+    :: Zeile schreiben wenn nicht im Lizenzblock
+    if "!write_line!"=="true" (
+        echo !line!>>"%temp_file%"
+    )
+)
+
+:: Temporäre Datei zur ursprünglichen Datei kopieren
+move "%temp_file%" "%file_path%" >nul
+if errorlevel 1 (
+    echo ERROR: Could not update file!
+    :: Backup wiederherstellen
+    copy "%backup_file%" "%file_path%" >nul
+    del "%backup_file%" >nul 2>&1
+    pause
+    exit /b 1
+)
+
+:: Temporäre Datei aufräumen falls noch vorhanden
+if exist "%temp_file%" del "%temp_file%"
+
+if "!found_license!"=="true" (
+    echo License header removed successfully.
+    echo Original file backup: %backup_file%
+    echo License backup saved as: %license_backup%
+) else (
+    echo No license header found.
+    :: Backup löschen wenn keine Änderungen vorgenommen wurden
+    del "%backup_file%" >nul 2>&1
+    del "%license_backup%" >nul 2>&1
+)
+
 pause
 exit /b 0
 
@@ -1622,6 +1680,39 @@ if not exist "%file_path%" (
     exit /b 1
 )
 
+:: Vorher-Backup anlegen
+set "backup_file=%file_path%.formatbak"
+copy "%file_path%" "%backup_file%" >nul 2>&1
+
+:: Bestimme Dateityp und Formatter
+call :get_formatter_for_file "%file_path%" formatter
+if "%formatter%"=="" (
+    echo WARNING: No formatter available for this file!
+    pause
+    exit /b 0
+) else (
+    echo Format file with: %formatter%
+    call :format_file "%file_path%" "%formatter%"
+)
+
+echo.
+echo File formatted successfully!
+
+:: Änderungen anzeigen
+echo.
+set /p "show_diff=Show all changes? (y/n): "
+if /i "%show_diff%"=="y" (
+    echo.
+    echo Showing code changes:
+    fc "%backup_file%" "%file_path%"
+    echo.
+    echo Press any key to continue...
+    pause >nul
+)
+if exist "%backup_file%" del "%backup_file%" >nul 2>&1
+
+exit /b 0
+
 :: Bestimme Dateityp und Formatter
 call :get_formatter_for_file "%file_path%" formatter
 if "%formatter%"=="" (
@@ -1789,7 +1880,7 @@ set "temp_file=%TEMP_DIR%\temp_format%temp_ext%"
 echo Create temporary file: %temp_file%
 copy "%txt_file_path%" "%temp_file%" >nul 2>&1
 
-echo Format as%detected_lang% with %formatter_tool%...
+echo Format as %detected_lang% with %formatter_tool%...
 call :format_file "%temp_file%" "%formatter_tool%"
 
 if not errorlevel 1 (
@@ -1803,7 +1894,7 @@ if not errorlevel 1 (
 :: Aufräumen
 if exist "%temp_file%" del "%temp_file%" >nul 2>&1
 
-:: Nach Lizenz fragen
+:: NEU: Nach Lizenzierung fragen
 echo.
 set /p "add_license=Add license to this file? (y/n): "
 if /i "%add_license%"=="y" (
@@ -1820,6 +1911,10 @@ echo.
 echo === TXT FILE FORMATTING ===
 echo Datei: %file_path%
 echo.
+
+:: Backup vor dem Formatieren anlegen
+set "backup_file=%file_path%.formatbak"
+copy "%file_path%" "%backup_file%" >nul 2>&1
 
 :: Sprache erkennen
 call :detect_language_in_txt "%file_path%" detected_lang
@@ -1849,15 +1944,16 @@ if "%detected_lang%"=="" (
 
 if "%detected_lang%"=="plaintext" (
     echo File is treated as plain text - no formatting possible.
+    if exist "%backup_file%" del "%backup_file%" >nul 2>&1
     exit /b 0
 )
 
-:: HIER IST DER FEHLER - KORRIGIERT:
 :: Hole den richtigen Formatter für die erkannte Sprache
 call :get_formatter_for_language "%detected_lang%" formatter_tool
 
 if "%formatter_tool%"=="" (
     echo ERROR: No formatter available for %detected_lang%!
+    if exist "%backup_file%" del "%backup_file%" >nul 2>&1
     exit /b 1
 )
 
@@ -1868,7 +1964,6 @@ set "temp_file=%TEMP_DIR%\temp_format%temp_ext%"
 echo Create temporary file: %temp_file%
 copy "%file_path%" "%temp_file%" >nul 2>&1
 
-:: KORRIGIERT: Verwende formatter_tool statt detected_lang
 echo Format as %detected_lang% with %formatter_tool%...
 call :format_file "%temp_file%" "%formatter_tool%"
 
@@ -1882,6 +1977,19 @@ if not errorlevel 1 (
 
 :: Aufräumen
 if exist "%temp_file%" del "%temp_file%" >nul 2>&1
+
+:: Änderungen anzeigen
+echo.
+set /p "show_diff=Show all changes? (y/n): "
+if /i "%show_diff%"=="y" (
+    echo.
+    echo Showing code changes:
+    fc "%backup_file%" "%file_path%"
+    echo.
+    echo Press any key to continue...
+    pause >nul
+)
+if exist "%backup_file%" del "%backup_file%" >nul 2>&1
 
 exit /b 0
 
